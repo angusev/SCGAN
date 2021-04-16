@@ -4,7 +4,6 @@ import os
 
 
 class NestedFolderTensorboardLogger(LightningLoggerBase):
-
     def __init__(self, save_dir, name, **kwargs):
         super().__init__()
         self.save_dir = save_dir
@@ -23,7 +22,9 @@ class NestedFolderTensorboardLogger(LightningLoggerBase):
         os.makedirs(generator_dir, exist_ok=True)
         os.makedirs(discriminator_dir, exist_ok=True)
         self.experiment_root = SummaryWriter(log_dir=root_dir, **self.kwargs)
-        self.experiment_discriminator = SummaryWriter(log_dir=discriminator_dir, **self.kwargs)
+        self.experiment_discriminator = SummaryWriter(
+            log_dir=discriminator_dir, **self.kwargs
+        )
         self.experiment_generator = SummaryWriter(log_dir=generator_dir, **self.kwargs)
 
     @rank_zero_only
@@ -37,29 +38,31 @@ class NestedFolderTensorboardLogger(LightningLoggerBase):
 
     @rank_zero_only
     def log_image(self, step, visualization):
-        self.experiment_root.add_image('visualization', visualization, step, dataformats='HWC')
+        self.experiment_root.add_image(
+            "visualization", visualization, step, dataformats="HWC"
+        )
 
     @rank_zero_only
     def log_generator_losses(self, step, gan_loss, reconstruction_loss):
-        self.experiment_generator.add_scalars('G/losses', {
-            'gan_loss': gan_loss,
-            'reconstruction_loss': reconstruction_loss
-        }, step)
+        self.experiment_generator.add_scalars(
+            "G/losses",
+            {"gan_loss": gan_loss, "reconstruction_loss": reconstruction_loss},
+            step,
+        )
 
     @rank_zero_only
     def log_discriminator_losses(self, step, real_loss, fake_loss):
-        self.experiment_discriminator.add_scalars('D/losses', {
-            'real': real_loss,
-            'fake': fake_loss
-        }, step)
+        self.experiment_discriminator.add_scalars(
+            "D/losses", {"real": real_loss, "fake": fake_loss}, step
+        )
 
     @rank_zero_only
     def log_total_generator_loss(self, step, loss):
-        self.experiment_generator.add_scalar('total', loss, step)
+        self.experiment_generator.add_scalar("total", loss, step)
 
     @rank_zero_only
     def log_total_discriminator_loss(self, step, loss):
-        self.experiment_discriminator.add_scalar('total', loss, step)
+        self.experiment_discriminator.add_scalar("total", loss, step)
 
     @rank_zero_only
     def save(self):
@@ -81,10 +84,9 @@ class NestedFolderTensorboardLogger(LightningLoggerBase):
 
 
 class NullLogger(LightningLoggerBase):
-
     def __init__(self):
         super().__init__()
-        self._name = 'null'
+        self._name = "null"
 
     @rank_zero_only
     def log_hyperparams(self, params):
@@ -96,7 +98,9 @@ class NullLogger(LightningLoggerBase):
 
     @rank_zero_only
     def log_image(self, step, visualization):
-        self.experiment_root.add_image('visualization', visualization, step, dataformats='HWC')
+        self.experiment_root.add_image(
+            "visualization", visualization, step, dataformats="HWC"
+        )
 
     @rank_zero_only
     def save(self):

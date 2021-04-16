@@ -1,170 +1,126 @@
-from torch.utils.data import Dataset
-from torchvision import transforms
 import os
-from util import constants
-from PIL import Image
+from pathlib import Path
+from dataclasses import dataclass
+from argparse import ArgumentParser
+from collections import OrderedDict
+from typing import Callable, List, Optional, Sequence, Union
+
+import numpy as np
+import cv2
 import torch
-import random
-from util.transforms import NormalizeRange, ToNumpyRGB256
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision
+import torchvision.transforms as transforms
+import pytorch_lightning as pl
+from torch.utils.data import DataLoader, random_split
+from torch.utils.data.dataset import Dataset
+from sklearn.model_selection import train_test_split
+
+from util.custom_transforms import UserSimulator
 
 
-class InpaintDataset(Dataset):
-
-    def __init__(self, root_folder, split, image_size, bbox_shape, bbox_randomness, bbox_margin, bbox_max_num, is_overfit):
-        self.root_folder = root_folder
-        self.split = split
-        self.image_size = image_size
-        self.bbox_shape = bbox_shape
-        self.bbox_margin = bbox_margin
-        self.bbox_randomness = bbox_randomness
-        self.bbox_max_num = bbox_max_num
-        with open(os.path.join(constants.DATASET_ROOT, self.root_folder, constants.SPLITS_FOLDER, split + ".txt"),"r") as fptr:
-            self.files = [x.strip() for x in fptr.readlines() if x.strip() != ""]
-            if is_overfit and split == 'train':
-                self.files = self.files * 10
-        if split == 'train':
-            self.transform_func = self.transform_train
-        else:
-            self.transform_func = self.transform_test
-
-    def __len__(self):
-        return len(self.files)
-
-    def __getitem__(self, index):
-        file = self.files[index]
-        image = Image.open(os.path.join(constants.DATASET_ROOT, self.root_folder, constants.IMAGES_FOLDER, file + ".jpg"))
-        image_tensor = self.transform_func(image)
-        mask = self.generate_mask()
-        return {'name': file, 'image': image_tensor, 'mask': mask}
-
-    def generate_mask(self):
-        mask = torch.zeros((1, self.image_size, self.image_size)).float()
-        num_bbox = random.randint(1, self.bbox_max_num)
-        for i in range(num_bbox):
-            bbox_height = random.randint(int(self.bbox_shape * (1 - self.bbox_randomness)), int(self.bbox_shape * (1 + self.bbox_randomness)))
-            bbox_width = random.randint(int(self.bbox_shape * (1 - self.bbox_randomness)), int(self.bbox_shape * (1 + self.bbox_randomness)))
-            y_min = random.randint(self.bbox_margin, self.image_size - bbox_height - self.bbox_margin - 1)
-            x_min = random.randint(self.bbox_margin, self.image_size - bbox_width - self.bbox_margin - 1)
-            mask[0, y_min:y_min + bbox_height, x_min:x_min + bbox_width] = 1
-        return mask
-
-    def transform_train(self, image):
-        transform_list = [
-            transforms.RandomHorizontalFlip(0.5),
-            transforms.RandomResizedCrop(self.image_size, scale=(1.0, 1.25), ratio=(1, 1), interpolation=2),
-            transforms.Resize(self.image_size),
-            transforms.ToTensor(),
-            NormalizeRange(minval=-1, maxval=1)
-        ]
-        composed_transform = transforms.Compose(transform_list)
-        return composed_transform(image)
-
-    def transform_test(self, image):
-        transform_list = [
-            transforms.Resize(self.image_size),
-            transforms.ToTensor(),
-            NormalizeRange(minval=-1, maxval=1)
-        ]
-        composed_transform = transforms.Compose(transform_list)
-        return composed_transform(image)
+@dataclass()
+class ItemsBatch:
+    images: torch.Tensor
+    colormaps: torch.Tensor
+    sketches: torch.Tensor
+    masks: torch.Tensor
 
 
-class FixedInpaintDataset(Dataset):
+@dataclass()
+class DatasetItem:
+    image: Union[torch.Tensor, np.array]
+    colormap: Union[torch.Tensor, np.array]
+    sketch: Union[torch.Tensor, np.array]
+    mask: Union[torch.Tensor, np.array]
 
-    def __init__(self, root_folder, split, image_size, box_collection_idx):
-        self.root_folder = root_folder
-        self.image_size = image_size
-        with open(os.path.join(constants.DATASET_ROOT, self.root_folder, constants.SPLITS_FOLDER, split + ".txt"), "r") as fptr:
-            self.files = [x.strip() for x in fptr.readlines() if x.strip() != ""]
-        self.box_collection_idx = box_collection_idx
-
-    def __len__(self):
-        return len(self.files) * len(self.get_test_masks())
-
-    def __getitem__(self, index):
-        file = self.files[index // len(self.get_test_masks())]
-        image = Image.open(os.path.join(constants.DATASET_ROOT, self.root_folder, constants.IMAGES_FOLDER, file + ".jpg"))
-        image_tensor = self.transform(image)
-        mask_bounds = self.get_test_masks()
-        mask = self.generate_mask(*mask_bounds[index % len(mask_bounds)])
-        return {'name': f'{file}_{index % len(mask_bounds):02d}', 'image': image_tensor, 'mask': mask}
-
-    def generate_mask(self, y_min, x_min, bbox_height, bbox_width):
-        mask = torch.zeros((1, self.image_size, self.image_size)).float()
-        mask[0, y_min:y_min + bbox_height, x_min:x_min + bbox_width] = 1
-        return mask
-
-    def get_test_masks(self):
-        box_collections = [
-            [(152, 41, 48, 43), (171, 114, 49, 45), (121, 91, 53, 37), (109, 62, 52, 58), (141, 150, 47, 39), (39, 73, 39, 53), (149, 167, 48, 38), (155, 46, 43, 38), (84, 64, 46, 51)],
-        ]
-        return box_collections[self.box_collection_idx]
-
-    def transform(self, image):
-        transform_list = [
-            transforms.Resize(self.image_size),
-            transforms.ToTensor(),
-            NormalizeRange(minval=-1, maxval=1)
-        ]
-        composed_transform = transforms.Compose(transform_list)
-        return composed_transform(image)
+    @classmethod
+    def collate(cls, items: Sequence["DatasetItem"]) -> ItemsBatch:
+        items = list(items)
+        return ItemsBatch(
+            images=default_collate([item.image for item in items]),
+            colormaps=default_collate([item.colormap for item in items]),
+            sketches=default_collate([item.sketch for item in items]),
+            masks=default_collate([item.mask for item in items]),
+        )
 
 
-def test_inpaint_dataset():
-    from torch.utils.data import DataLoader
-    import matplotlib.pyplot as plt
-    import numpy as np
+class SCDataset(Dataset):
+    def __init__(self, data_root, files):
+        self._data_root = Path(data_root)
+        self._files = files
+        self.transform = transforms.Compose([transforms.ToTensor()])
+        self.user_simulator = UserSimulator()
 
-    _root_folder = 'matterport'
-    _split = 'train'
-    _image_size = 256
-    _bbox_shape = 48
-    _bbox_randomness = 0.25
-    _bbox_margin = 32
-    _bbox_max_num = 2
-    dataset = InpaintDataset(_root_folder, _split, _image_size, _bbox_shape, _bbox_randomness, _bbox_margin, _bbox_max_num, False)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True, num_workers=0)
-    torgb = ToNumpyRGB256(-1, 1)
+    def __getitem__(self, index: int) -> DatasetItem:
+        pathes = {
+            "image": str(self._data_root / "imgs_256" / self._files[index]),
+            "colormap": str(self._data_root / "color_maps_256" / self._files[index]),
+            "sketch": str(self._data_root / "sketches" / Path(self._files[index]).with_suffix(".jpg")),
+        }
 
-    for i, sample in enumerate(dataloader, 0):
-        for j in range(sample['image'].size()[0]):
-            image = sample['image'].numpy()
-            mask = sample['mask'].squeeze().numpy()[j]
-            image_unnormalized = torgb(image[j])
-            plt.figure()
-            plt.title('display')
-            plt.subplot(211)
-            plt.imshow(image_unnormalized)
-            plt.subplot(212)
-            plt.imshow(mask)
-            plt.show(block=True)
+        image = cv2.imread(pathes["image"], -1)
+        colormap = cv2.imread(pathes["colormap"], -1)
+        sketch = cv2.imread(pathes["sketch"], -1)
 
+        mask = self.user_simulator(image)
+        # return DatasetItem(
+        #     image=self.transform(image),
+        #     colormap=self.transform(colormap),
+        #     sketch=self.transform(sketch),
+        #     mask=self.transform(mask),
+        # )
+        return dict(
+            image=self.transform(image).float(),
+            colormap=self.transform(colormap).float(),
+            sketch=self.transform(sketch).float(),
+            mask=self.transform(mask).float(),
+        )
 
-def test_fixed_inpaint_dataset():
-    from torch.utils.data import DataLoader
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    _root_folder = 'matterport'
-    _split = 'train'
-    _image_size = 256
-    dataset = FixedInpaintDataset(_root_folder, "vis_0", _image_size, 0)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
-    torgb = ToNumpyRGB256(-1, 1)
-
-    for i, sample in enumerate(dataloader, 0):
-        for j in range(sample['image'].size()[0]):
-            image = sample['image'].numpy()
-            mask = sample['mask'].squeeze().numpy()[j]
-            image_unnormalized = torgb(image[j])
-            plt.figure()
-            plt.title('display')
-            plt.subplot(211)
-            plt.imshow(image_unnormalized)
-            plt.subplot(212)
-            plt.imshow(mask)
-            plt.show(block=True)
+    def __len__(self) -> int:
+        return len(self._files)
 
 
-if __name__ == '__main__':
-    test_fixed_inpaint_dataset()
+class SCDataModule(pl.LightningDataModule):
+    def __init__(
+        self, data_dir: str = "./", batch_size: int = 64, num_workers: int = 3
+    ):
+        super().__init__()
+        self.data_dir = Path(data_dir)
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+
+        self.transform = transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+        )
+
+        # self.dims is returned when you call dm.size()
+        # Setting default dims here because we know them.
+        # Could optionally be assigned dynamically in dm.setup()
+        # self.dims = (1, 28, 28)
+        # self.num_classes = 10
+
+    def setup(self, stage=None):
+        files = list((self.data_dir / 'imgs_256').glob("*.png"))
+        files = [f.name for f in files]
+        dataset = SCDataset(self.data_dir, files)
+
+        n = len(dataset)
+        lengths = [int(n * 0.8), int(n * 0.15), int(n * 0.05)]
+        self.train_ds, self.valid_ds, self.test_ds = random_split(dataset, lengths)
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.train_ds, batch_size=self.batch_size, num_workers=self.num_workers
+        )
+
+    def val_dataloader(self):
+        return DataLoader(
+            self.valid_ds, batch_size=self.batch_size, num_workers=self.num_workers
+        )
+
+    def test_dataloader(self):
+        return DataLoader(
+            self.test_ds, batch_size=self.batch_size, num_workers=self.num_workers
+        )
