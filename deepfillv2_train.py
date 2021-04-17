@@ -13,6 +13,7 @@ from PIL import Image
 
 from dataset.InpaintDataset import SCDataModule
 
+#os.environ["WANDB_API_KEY"] = '086821559b8bbc36435683340ce0d2741fcf9858'
 
 torch.backends.cudnn.benchmark = True
 
@@ -205,7 +206,7 @@ if __name__ == "__main__":
     )
 
     model = DeepFillV2(args)
-    train_loader = SCDataModule("../CelebAMask-HQ")
+    train_loader = SCDataModule("/home/mrartemev/data/celebamask/")
 
     trainer = Trainer(
         gpus=1,

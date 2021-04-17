@@ -1,6 +1,4 @@
 import os
-from os import listdir
-from os.path import isfile, join
 from pathlib import Path
 from dataclasses import dataclass
 from argparse import ArgumentParser
@@ -57,18 +55,15 @@ class SCDataset(Dataset):
 
     def __getitem__(self, index: int) -> DatasetItem:
         pathes = {
-            "image": str(self._data_root / "images_256" / (self._files[index] + ".jpg")),
-            "colormap": str(self._data_root / "colormaps_256" / (self._files[index] + ".png")),
-            "sketch": str(self._data_root / "sketches_masked_256" / (self._files[index] + ".jpg")),
+            "image": str(self._data_root / "imgs_256" / self._files[index]),
+            "colormap": str(self._data_root / "color_maps_256" / self._files[index]),
+            "sketch": str(self._data_root / "sketches" / Path(self._files[index]).with_suffix(".jpg")),
         }
 
         image = cv2.imread(pathes["image"], -1)
         colormap = cv2.imread(pathes["colormap"], -1)
         sketch = cv2.imread(pathes["sketch"], -1)
-        
-        assert image is not None
-        assert colormap is not None, f"{pathes['colormap']} does't exist"
-        assert sketch is not None
+
         mask = self.user_simulator(image)
         # return DatasetItem(
         #     image=self.transform(image),
@@ -107,8 +102,8 @@ class SCDataModule(pl.LightningDataModule):
         # self.num_classes = 10
 
     def setup(self, stage=None):
-        imgpath = self.data_dir / 'images_256'
-        files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
+        files = list((self.data_dir / 'imgs_256').glob("*.png"))
+        files = [f.name for f in files]
         dataset = SCDataset(self.data_dir, files)
 
         n = len(dataset)
