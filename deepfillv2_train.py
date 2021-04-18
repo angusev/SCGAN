@@ -130,17 +130,16 @@ class DeepFillV2(pl.LightningModule):
                     ]
                 )
                 image_fromarray = Image.fromarray(visualization)
-                image_fromarray.save(
-                    os.path.join(
-                        constants.RUNS_FOLDER,
-                        self.hparams.dataset,
-                        self.hparams.experiment,
-                        "visualization",
-                        str(j) + ".jpg",
-                    )
-                )
-                if j == 0:
-                    self.logger.experiment.log_image(image_fromarray)
+                # image_fromarray.save(
+                #     os.path.join(
+                #         constants.RUNS_FOLDER,
+                #         self.hparams.dataset,
+                #         self.hparams.experiment,
+                #         "visualization",
+                #         str(j) + ".jpg",
+                #     )
+                # )
+                self.logger.experiment.log_image(image_fromarray)
         return {
             "test_loss": torch.FloatTensor(
                 [
