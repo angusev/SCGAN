@@ -136,7 +136,7 @@ class DeepFillV2(pl.LightningModule):
                         self.hparams.dataset,
                         self.hparams.experiment,
                         "visualization",
-                        batch["name"][j] + ".jpg",
+                        str(j) + ".jpg",
                     )
                 )
                 if j == 0:
@@ -169,43 +169,7 @@ class DeepFillV2(pl.LightningModule):
         return masked_image, coarse_image, refined_image, completed_image
 
     def test_step(self, batch, batch_idx):
-        torgb = ToNumpyRGB256(-1, 1)
-        with torch.no_grad():
-            (
-                masked_image,
-                coarse_image,
-                refined_image,
-                completed_image,
-            ) = self.generate_images(batch["image"], batch["mask"])
-            for j in range(batch["image"].size(0)):
-                visualization = np.hstack(
-                    [
-                        torgb(masked_image[j]),
-                        torgb(coarse_image[j]),
-                        torgb(refined_image[j]),
-                        torgb(completed_image[j]),
-                        torgb(batch["image"][j].cpu().numpy()),
-                    ]
-                )
-                image_fromarray = Image.fromarray(visualization)
-                image_fromarray.save(
-                    os.path.join(
-                        constants.RUNS_FOLDER,
-                        self.hparams.dataset,
-                        self.hparams.experiment,
-                        "visualization",
-                        batch["name"][j] + ".jpg",
-                    )
-                )
-                if j == 0:
-                    self.logger.experiment.log_image(image_fromarray)
-        return {
-            "test_loss": torch.FloatTensor(
-                [
-                    -1.0,
-                ]
-            )
-        }
+        return self.validation_step(batch, batch_idx)
 
     def test_end(self, outputs):
         return {
