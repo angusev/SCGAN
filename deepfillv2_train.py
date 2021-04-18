@@ -46,11 +46,23 @@ class DeepFillV2(pl.LightningModule):
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):
+        image, colormap, sketch, mask = (
+            batch["image"],
+            batch["colormap"],
+            batch["sketch"],
+            batch["mask"],
+        )
+
+        generator_input = torch.cat((image, colormap, sketch), dim=1)
+        generator_input = generator_input * mask
+        generator_input = torch.cat((generator_input, mask), dim=1)
+        coarse_image, refined_image = self.net_G(generator_input)
+
         (
-                masked_image,
-                coarse_image,
-                refined_image,
-                completed_image,
+            masked_image,
+            coarse_image,
+            refined_image,
+            completed_image,
         ) = self.generate_images(batch)
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
