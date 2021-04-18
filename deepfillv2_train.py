@@ -46,17 +46,12 @@ class DeepFillV2(pl.LightningModule):
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):
-        image, colormap, sketch, mask = (
-            batch["image"],
-            batch["colormap"],
-            batch["sketch"],
-            batch["mask"],
-        )
-
-        generator_input = torch.cat((image, colormap, sketch), dim=1)
-        generator_input = generator_input * mask
-        generator_input = torch.cat((generator_input, mask), dim=1)
-        coarse_image, refined_image = self.net_G(generator_input)
+        (
+                masked_image,
+                coarse_image,
+                refined_image,
+                completed_image,
+        ) = self.generate_images(batch)
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
@@ -111,7 +106,7 @@ class DeepFillV2(pl.LightningModule):
                 coarse_image,
                 refined_image,
                 completed_image,
-            ) = self.generate_images(batch["image"], batch["mask"])
+            ) = self.generate_images(batch)
             for j in range(batch["image"].size(0)):
                 visualization = np.hstack(
                     [
@@ -142,8 +137,18 @@ class DeepFillV2(pl.LightningModule):
             )
         }
 
-    def generate_images(self, image, mask):
-        coarse_image, refined_image = self.net_G(image, mask)
+    def generate_images(self, batch):        
+        image, colormap, sketch, mask = (
+            batch["image"],
+            batch["colormap"],
+            batch["sketch"],
+            batch["mask"],
+        )
+
+        generator_input = torch.cat((image, colormap, sketch), dim=1)
+        generator_input = generator_input * mask
+        generator_input = torch.cat((generator_input, mask), dim=1)
+        coarse_image, refined_image = self.net_G(generator_input)
         completed_image = (refined_image * mask + image * (1 - mask)).cpu().numpy()
         coarse_image = coarse_image.cpu().numpy()
         refined_image = refined_image.cpu().numpy()
