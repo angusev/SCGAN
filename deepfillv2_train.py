@@ -57,7 +57,7 @@ class DeepFillV2(pl.LightningModule):
         generator_input = generator_input * mask
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
-        
+
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
         discriminator_input = torch.cat((colormap, sketch), dim=1)
@@ -112,7 +112,7 @@ class DeepFillV2(pl.LightningModule):
                 refined_image,
                 completed_image,
             ) = self.generate_images(batch)
-            for j in range(batch["image"].size(0)):
+            for j in range(min(4, batch["image"].size(0))):
                 visualization = np.hstack(
                     [
                         torgb(masked_image[j]),
@@ -122,7 +122,7 @@ class DeepFillV2(pl.LightningModule):
                         torgb(batch["image"][j].cpu().numpy()),
                     ]
                 )
-                image_fromarray = Image.fromarray(visualization)
+                image_fromarray = Image.fromarray(visualization[:, [2, 1, 0]])
                 # image_fromarray.save(
                 #     os.path.join(
                 #         constants.RUNS_FOLDER,
