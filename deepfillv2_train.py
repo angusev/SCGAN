@@ -161,8 +161,8 @@ class DeepFillV2(pl.LightningModule):
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
         completed_image = (refined_image * mask + image * (1 - mask)).detach().cpu().numpy()
-        coarse_image = coarse_image.cpu().numpy()
-        refined_image = refined_image.cpu().numpy()
+        coarse_image = coarse_image.detach().cpu().numpy()
+        refined_image = refined_image.detach().cpu().numpy()
         masked_image = image * (1 - mask) + mask
         masked_image = masked_image.cpu().numpy()
         return masked_image, coarse_image, refined_image, completed_image
