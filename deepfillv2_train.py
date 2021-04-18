@@ -122,7 +122,7 @@ class DeepFillV2(pl.LightningModule):
                         torgb(batch["image"][j].cpu().numpy()),
                     ]
                 )
-                image_fromarray = Image.fromarray(visualization[[2, 1, 0]])
+                image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
                 # image_fromarray.save(
                 #     os.path.join(
                 #         constants.RUNS_FOLDER,
