@@ -57,14 +57,7 @@ class DeepFillV2(pl.LightningModule):
         generator_input = generator_input * mask
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
-
-        (
-            masked_image,
-            coarse_image,
-            refined_image,
-            completed_image,
-        ) = self.generate_images(batch)
-
+        
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
         discriminator_input = torch.cat((colormap, sketch), dim=1)
