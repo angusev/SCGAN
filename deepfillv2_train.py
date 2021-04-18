@@ -53,9 +53,9 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
-        generator_input = torch.cat((image * (1 - mask),
-                                    colormap * mask,
-                                    sketch * mask), dim=1)
+        generator_input = torch.cat((image * mask,
+                                    colormap * (1 - mask),
+                                    sketch * (1 - mask)), dim=1)
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
 
@@ -150,6 +150,11 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
+        generator_input = torch.cat((image * mask,
+                                    colormap * (1 - mask),
+                                    sketch * (1 - mask)), dim=1)
+        generator_input = torch.cat((generator_input, mask), dim=1)
+
         generator_input = torch.cat((image, colormap, sketch), dim=1)
         generator_input = generator_input * mask
         generator_input = torch.cat((generator_input, mask), dim=1)
@@ -157,7 +162,7 @@ class DeepFillV2(pl.LightningModule):
         completed_image = (refined_image * mask + image * (1 - mask)).detach().cpu().numpy()
         coarse_image = coarse_image.detach().cpu().numpy()
         refined_image = refined_image.detach().cpu().numpy()
-        masked_image = image * (1 - mask)
+        masked_image = image * mask
         masked_image = masked_image.cpu().numpy()
 
         return masked_image, coarse_image, refined_image, completed_image
@@ -173,45 +178,6 @@ class DeepFillV2(pl.LightningModule):
                 ]
             )
         }
-
-    def on_epoch_end__(self):
-        images = []
-        coarse = []
-        refined = []
-        masked = []
-        completed = []
-        torgb = ToNumpyRGB256(-1, 1)
-
-        with torch.no_grad():
-            for t, batch in enumerate(self.visualization_dataloader):
-                batch["image"] = batch["image"].cuda()
-                batch["mask"] = batch["mask"].cuda()
-                (
-                    masked_image,
-                    coarse_image,
-                    refined_image,
-                    completed_image,
-                ) = self.generate_images(batch["image"], batch["mask"])
-
-                for j in range(batch["image"].size(0)):
-                    images.append(torgb(batch["image"][j].cpu().numpy()))
-                    coarse.append(torgb(coarse_image[j]))
-                    refined.append(torgb(refined_image[j]))
-                    masked.append(torgb(masked_image[j]))
-                    completed.append(torgb(completed_image[j]))
-
-            visualization = np.hstack(
-                [
-                    np.vstack(masked),
-                    np.vstack(coarse),
-                    np.vstack(refined),
-                    np.vstack(completed),
-                    np.vstack(images),
-                ]
-            )
-            self.logger.experiment.log(
-                {"val_input_image": [wandb.Image(visualization)]}, step=self.global_step
-            )
 
 
 if __name__ == "__main__":
