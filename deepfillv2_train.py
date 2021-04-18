@@ -157,10 +157,10 @@ class DeepFillV2(pl.LightningModule):
         completed_image = (refined_image * mask + image * (1 - mask)).detach().cpu().numpy()
         coarse_image = coarse_image.detach().cpu().numpy()
         refined_image = refined_image.detach().cpu().numpy()
-        masked_image = image * (1 - mask) + mask
+        masked_image = image * (1 - mask)
         masked_image = masked_image.cpu().numpy()
 
-        return image * (1 - mask), coarse_image, refined_image, completed_image
+        return masked_image, coarse_image, refined_image, completed_image
 
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
