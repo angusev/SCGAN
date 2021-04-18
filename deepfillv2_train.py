@@ -53,8 +53,9 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
-        generator_input = torch.cat((image, colormap, sketch), dim=1)
-        generator_input = generator_input * mask
+        generator_input = torch.cat((image * (1 - mask),
+                                    colormap * mask,
+                                    sketch * mask), dim=1)
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
 
@@ -158,7 +159,8 @@ class DeepFillV2(pl.LightningModule):
         refined_image = refined_image.detach().cpu().numpy()
         masked_image = image * (1 - mask) + mask
         masked_image = masked_image.cpu().numpy()
-        return masked_image, coarse_image, refined_image, completed_image
+
+        return image * (1 - mask), coarse_image, refined_image, completed_image
 
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
