@@ -15,9 +15,9 @@ def compress_and_save(f, dataset_path, compressed_path, size):
     form = get_format(f)
     old_file_path = dataset_path / f
     new_file_path = compressed_path / f
-    new_file_path = new_file_path.with_suffix('.png')
+    new_file_path = new_file_path.with_suffix(".png")
     new_file_path.parents[0].mkdir(exist_ok=True)
-    
+
     im = cv2.imread(str(old_file_path))
     im = cv2.resize(im, (size, size), cv2.INTER_AREA)
     cv2.imwrite(str(new_file_path), im)

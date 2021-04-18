@@ -57,7 +57,11 @@ class SCDataset(Dataset):
         pathes = {
             "image": str(self._data_root / "imgs_256" / self._files[index]),
             "colormap": str(self._data_root / "color_maps_256" / self._files[index]),
-            "sketch": str(self._data_root / "sketches" / Path(self._files[index]).with_suffix(".jpg")),
+            "sketch": str(
+                self._data_root
+                / "sketches"
+                / Path(self._files[index]).with_suffix(".jpg")
+            ),
         }
 
         image = cv2.imread(pathes["image"], -1)
@@ -102,7 +106,7 @@ class SCDataModule(pl.LightningDataModule):
         # self.num_classes = 10
 
     def setup(self, stage=None):
-        files = list((self.data_dir / 'imgs_256').glob("*.png"))
+        files = list((self.data_dir / "imgs_256").glob("*.png"))
         files = [f.name for f in files]
         dataset = SCDataset(self.data_dir, files)
 

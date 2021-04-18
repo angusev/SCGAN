@@ -57,15 +57,21 @@ class SCDataset(Dataset):
 
     def __getitem__(self, index: int) -> DatasetItem:
         pathes = {
-            "image": str(self._data_root / "images_256" / (self._files[index] + ".jpg")),
-            "colormap": str(self._data_root / "colormaps_256" / (self._files[index] + ".png")),
-            "sketch": str(self._data_root / "sketches_masked_256" / (self._files[index] + ".jpg")),
+            "image": str(
+                self._data_root / "images_256" / (self._files[index] + ".jpg")
+            ),
+            "colormap": str(
+                self._data_root / "colormaps_256" / (self._files[index] + ".png")
+            ),
+            "sketch": str(
+                self._data_root / "sketches_masked_256" / (self._files[index] + ".jpg")
+            ),
         }
 
         image = cv2.imread(pathes["image"], -1)
         colormap = cv2.imread(pathes["colormap"], -1)
         sketch = cv2.imread(pathes["sketch"], -1)
-        
+
         assert image is not None
         assert colormap is not None, f"{pathes['colormap']} does't exist"
         assert sketch is not None
@@ -89,12 +95,17 @@ class SCDataset(Dataset):
 
 class SCDataModule(pl.LightningDataModule):
     def __init__(
-        self, data_dir: str = "./", batch_size: int = 64, num_workers: int = 3
+        self,
+        data_dir: str = "./",
+        batch_size: int = 64,
+        num_workers: int = 3,
+        dry_try: bool = False,
     ):
         super().__init__()
         self.data_dir = Path(data_dir)
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.dry_try = dry_try
 
         self.transform = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
@@ -107,8 +118,11 @@ class SCDataModule(pl.LightningDataModule):
         # self.num_classes = 10
 
     def setup(self, stage=None):
-        imgpath = self.data_dir / 'images_256'
+        imgpath = self.data_dir / "images_256"
         files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
+
+        if self.dry_try:
+            files = files[::100]
         dataset = SCDataset(self.data_dir, files)
 
         n = len(dataset)

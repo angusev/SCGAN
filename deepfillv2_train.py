@@ -1,3 +1,10 @@
+from util import arguments
+import comet_ml
+from pytorch_lightning.loggers import WandbLogger, CometLogger
+from pytorch_lightning import Trainer
+from util import constants
+from pytorch_lightning.callbacks import ModelCheckpoint
+
 import pytorch_lightning as pl
 import os
 from util import constants
@@ -13,7 +20,6 @@ from PIL import Image
 
 from dataset.InpaintDataset import SCDataModule
 
-#os.environ["WANDB_API_KEY"] = '086821559b8bbc36435683340ce0d2741fcf9858'
 
 torch.backends.cudnn.benchmark = True
 
@@ -40,62 +46,63 @@ class DeepFillV2(pl.LightningModule):
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):
-        image, colormap, sketch, mask = batch["image"], batch["colormap"], batch["sketch"], batch["mask"]
+        image, colormap, sketch, mask = (
+            batch["image"],
+            batch["colormap"],
+            batch["sketch"],
+            batch["mask"],
+        )
 
         generator_input = torch.cat((image, colormap, sketch), dim=1)
         generator_input = generator_input * mask
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
 
-        reconstruction_loss = self.recon_loss(
-            image, coarse_image, refined_image, mask
-        )
+        reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
         discriminator_input = torch.cat((colormap, sketch), dim=1)
         discriminator_input = discriminator_input * mask
-        discriminator_input_fake = torch.cat((coarse_image, discriminator_input, mask), dim=1)
+        discriminator_input_fake = torch.cat(
+            (coarse_image, discriminator_input, mask), dim=1
+        )
         discriminator_input_real = torch.cat((image, discriminator_input, mask), dim=1)
         d_fake = self.net_D(discriminator_input_fake)
-    
+
         if optimizer_idx == 0:
             # generator training
 
             gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake)
             total_loss = gen_loss + reconstruction_loss
-            self.logger.experiment.log(
-                {
-                    "gen_loss": gen_loss,
-                    "reconstruction_loss": reconstruction_loss,
-                    "total_loss": total_loss
-                },
-                step=self.global_step
-            )
-
             return {
                 "loss": total_loss,
                 "progress_bar": {
                     "gen_loss": gen_loss,
                     "recon_loss": reconstruction_loss,
                 },
+                "log": {
+                    "gen_loss": gen_loss,
+                    "reconstruction_loss": reconstruction_loss,
+                    "total_loss": total_loss,
+                },
             }
 
-        if optimizer_idx == 1:            
+        if optimizer_idx == 1:
             # discriminator training
             d_real = self.net_D(discriminator_input_real)
 
             real_loss = torch.mean(torch.nn.functional.relu(1.0 - d_real))
             fake_loss = torch.mean(torch.nn.functional.relu(1.0 + d_fake))
             disc_loss = self.hparams.disc_loss_alpha * (real_loss + fake_loss)
-            self.logger.experiment.log({
-                "disc_loss": disc_loss,
-                "real_loss": real_loss,
-                "fake_loss": fake_loss
-            },
-                step=self.global_step)
             return {
                 "loss": disc_loss,
                 "progress_bar": {"d_real_loss": real_loss, "d_fake_loss": fake_loss},
+                "log": {
+                    "disc_loss": disc_loss,
+                    "real_loss": real_loss,
+                    "fake_loss": fake_loss,
+                },
             }
+    def validation_step(self, batch, batch_idx):
 
     def generate_images(self, image, mask):
         coarse_image, refined_image = self.net_G(image, mask)
@@ -186,27 +193,27 @@ class DeepFillV2(pl.LightningModule):
                     np.vstack(images),
                 ]
             )
-            self.logger.experiment.log({"val_input_image": [wandb.Image(visualization)]}, step=self.global_step)
+            self.logger.experiment.log(
+                {"val_input_image": [wandb.Image(visualization)]}, step=self.global_step
+            )
 
 
 if __name__ == "__main__":
-    from util import arguments
-    from pytorch_lightning.loggers import WandbLogger
-    from pytorch_lightning import Trainer
-    from util import constants
-    from pytorch_lightning.callbacks import ModelCheckpoint
-    import os
-
     args = arguments.parse_arguments()
 
-    logger = WandbLogger(name="try", project="thesis")
+    # logger = WandbLogger(name="try", project="thesis")
+    logger = CometLogger(
+        "eM513qOnoTSydF2BDo4Z43su3", workspace="angusev", project_name="thesis"
+    )
     checkpoint_callback = ModelCheckpoint(
         filename=os.path.join(constants.RUNS_FOLDER, args.dataset, args.experiment),
         period=args.save_epoch,
     )
 
     model = DeepFillV2(args)
-    train_loader = SCDataModule("/home/mrartemev/data/celebamask/")
+    train_loader = SCDataModule(
+        "/home/mrartemev/data/celebamask/", dry_try=args.dry_try
+    )
 
     trainer = Trainer(
         gpus=1,

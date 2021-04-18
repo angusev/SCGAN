@@ -17,46 +17,52 @@ def get_format(f):
 
 
 INDEX_CLASS_MAPPING = {
-    0: 'background',
-    1: 'skin',
-    2: 'nose',
-    3: 'eye_g',
-    4: 'l_eye',
-    5: 'r_eye',
-    6: 'l_brow',
-    7: 'r_brow',
-    8: 'l_ear',
-    9: 'r_ear',
-    10: 'mouth',
-    11: 'u_lip',
-    12: 'l_lip',
-    13: 'hair',
-    14: 'hat',
-    15: 'ear_r',
-    16: 'neck_l',
-    17: 'neck',
-    18: 'cloth',
+    0: "background",
+    1: "skin",
+    2: "nose",
+    3: "eye_g",
+    4: "l_eye",
+    5: "r_eye",
+    6: "l_brow",
+    7: "r_brow",
+    8: "l_ear",
+    9: "r_ear",
+    10: "mouth",
+    11: "u_lip",
+    12: "l_lip",
+    13: "hair",
+    14: "hat",
+    15: "ear_r",
+    16: "neck_l",
+    17: "neck",
+    18: "cloth",
 }
 CLASS_INDEX_MAPPING = {v: k for k, v in INDEX_CLASS_MAPPING.items()}
 N_CLASSES = len(CLASS_INDEX_MAPPING)
 
 MASK_SIZE = (512, 512)
 
+
 def process_one_file(f, masks_path, dest_path):
-    wo_format = f.split('.')[0]
+    wo_format = f.split(".")[0]
     n = int(wo_format)
-    fileprefix = wo_format.rjust(5, '0')
+    fileprefix = wo_format.rjust(5, "0")
 
     combination = np.zeros(MASK_SIZE)
     folder = masks_path / str(n // 2000)
-    mask_files = glob.glob(str(folder  / f'{fileprefix}_*.png'))
+    mask_files = glob.glob(str(folder / f"{fileprefix}_*.png"))
     parts = [Path(mask_file).name[6:-4] for mask_file in mask_files]
     for idx, part in INDEX_CLASS_MAPPING.items():
         if part in parts:
-            mask = cv2.imread(str(folder / f'{fileprefix}_{part}.png'), cv2.IMREAD_GRAYSCALE) / 255
+            mask = (
+                cv2.imread(
+                    str(folder / f"{fileprefix}_{part}.png"), cv2.IMREAD_GRAYSCALE
+                )
+                / 255
+            )
             combination[mask != 0] = idx
 
-    new_file_path = dest_path / f'{n}.png'
+    new_file_path = dest_path / f"{n}.png"
     new_file_path.parents[0].mkdir(exist_ok=True)
     cv2.imwrite(str(new_file_path), combination)
 
@@ -71,8 +77,7 @@ def combine_masks(args):
     files = [f for f in listdir(imgs_path) if isfile(join(imgs_path, f))]
 
     Parallel(n_jobs=4, verbose=10)(
-        delayed(process_one_file)(f, src_path, dest_path)
-        for f in files
+        delayed(process_one_file)(f, src_path, dest_path) for f in files
     )
 
 

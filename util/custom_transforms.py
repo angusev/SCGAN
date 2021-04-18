@@ -15,8 +15,9 @@ class UserSimulator(object):
         self.maxLength = mask.shape[0] / 4
 
         for i in range(self.clusters):
-            start_coord = np.random.normal(loc=np.array(mask.shape[:2]) / 2,
-                                           scale=np.array(mask.shape[:2]) / 4)
+            start_coord = np.random.normal(
+                loc=np.array(mask.shape[:2]) / 2, scale=np.array(mask.shape[:2]) / 4
+            )
             end_coord = np.zeros_like(start_coord)
             startAngle = np.random.uniform(2 * np.pi)
 
@@ -33,8 +34,13 @@ class UserSimulator(object):
                 end_coord[0] = start_coord[0] + length * np.sin(angle)
                 end_coord[1] = start_coord[1] + length * np.cos(angle)
 
-                cv2.line(mask, tuple(start_coord.astype(int)),
-                    tuple(end_coord.astype(int)), (255, 255, 255), thickness=mask.shape[0] // 40)
+                cv2.line(
+                    mask,
+                    tuple(start_coord.astype(int)),
+                    tuple(end_coord.astype(int)),
+                    (255, 255, 255),
+                    thickness=mask.shape[0] // 40,
+                )
                 start_coord = end_coord.copy()
         return mask
 
