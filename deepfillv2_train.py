@@ -107,34 +107,35 @@ class DeepFillV2(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         torgb = ToNumpyRGB256(-1, 1)
-        with torch.no_grad():
-            (
-                masked_image,
-                coarse_image,
-                refined_image,
-                completed_image,
-            ) = self.generate_images(batch)
-            for j in range(min(4, batch["image"].size(0))):
-                visualization = np.hstack(
-                    [
-                        torgb(masked_image[j]),
-                        torgb(coarse_image[j]),
-                        torgb(refined_image[j]),
-                        torgb(completed_image[j]),
-                        torgb(batch["image"][j].cpu().numpy()),
-                    ]
-                )
-                image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
-                # image_fromarray.save(
-                #     os.path.join(
-                #         constants.RUNS_FOLDER,
-                #         self.hparams.dataset,
-                #         self.hparams.experiment,
-                #         "visualization",
-                #         str(j) + ".jpg",
-                #     )
-                # )
-                self.logger.experiment.log_image(image_fromarray)
+        if batch_idx == 0:
+            with torch.no_grad():
+                (
+                    masked_image,
+                    coarse_image,
+                    refined_image,
+                    completed_image,
+                ) = self.generate_images(batch)
+                for j in range(min(4, batch["image"].size(0))):
+                    visualization = np.hstack(
+                        [
+                            torgb(masked_image[j]),
+                            torgb(coarse_image[j]),
+                            torgb(refined_image[j]),
+                            torgb(completed_image[j]),
+                            torgb(batch["image"][j].cpu().numpy()),
+                        ]
+                    )
+                    image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
+                    # image_fromarray.save(
+                    #     os.path.join(
+                    #         constants.RUNS_FOLDER,
+                    #         self.hparams.dataset,
+                    #         self.hparams.experiment,
+                    #         "visualization",
+                    #         str(j) + ".jpg",
+                    #     )
+                    # )
+                    self.logger.experiment.log_image(image_fromarray)
         return {
             "test_loss": torch.FloatTensor(
                 [
