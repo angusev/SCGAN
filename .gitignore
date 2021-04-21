@@ -6,3 +6,4 @@ data/*/images
 lightning_logs/
 sparseconvnet
 .idea/
+.vscode/

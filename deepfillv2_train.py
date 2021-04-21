@@ -54,9 +54,9 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
-        generator_input = torch.cat((image * mask,
-                                    colormap * (1 - mask),
-                                    sketch * (1 - mask)), dim=1)
+        generator_input = torch.cat(
+            (image * mask, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+        )
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
 
@@ -148,7 +148,7 @@ class DeepFillV2(pl.LightningModule):
             )
         }
 
-    def generate_images(self, batch):        
+    def generate_images(self, batch):
         image, colormap, sketch, mask = (
             batch["image"],
             batch["colormap"],
@@ -156,17 +156,19 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
-        generator_input = torch.cat((image * mask,
-                                    colormap * (1 - mask),
-                                    sketch * (1 - mask)), dim=1)
+        generator_input = torch.cat(
+            (image * mask, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+        )
         generator_input = torch.cat((generator_input, mask), dim=1)
 
         generator_input = torch.cat((image, colormap, sketch), dim=1)
         generator_input = generator_input * mask
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
-        completed_image = (refined_image * (1 - mask) + image * mask).detach().cpu().numpy()
-    
+        completed_image = (
+            (refined_image * (1 - mask) + image * mask).detach().cpu().numpy()
+        )
+
         coarse_image = coarse_image.detach().cpu().numpy()
         refined_image = refined_image.detach().cpu().numpy()
         masked_image = image * mask
@@ -176,7 +178,14 @@ class DeepFillV2(pl.LightningModule):
         masked_colormap = colormap * (1 - mask)
         masked_colormap = masked_colormap.cpu().numpy()
 
-        return masked_image, masked_sketch, masked_colormap, coarse_image, refined_image, completed_image
+        return (
+            masked_image,
+            masked_sketch,
+            masked_colormap,
+            coarse_image,
+            refined_image,
+            completed_image,
+        )
 
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
