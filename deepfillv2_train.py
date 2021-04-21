@@ -7,6 +7,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 import pytorch_lightning as pl
 import os
+from pathlib import Path
 from util import constants
 from util.misc import count_parameters
 import torch
@@ -187,8 +188,15 @@ if __name__ == "__main__":
     logger = CometLogger(
         "eM513qOnoTSydF2BDo4Z43su3", workspace="angusev", project_name="thesis"
     )
+
+    checkpoint_path = Path(constants.RUNS_FOLDER) / args.experiment
+    i = 0
+    while checkpoint_path.with_suffix(i).is_dir():
+        i += 1
+    checkpoint_path = checkpoint_path.with_suffix(i)
+    checkpoint_path.mkdir()
     checkpoint_callback = ModelCheckpoint(
-        filename=os.path.join(constants.RUNS_FOLDER, args.dataset, args.experiment),
+        filename=checkpoint_path,
         period=args.save_epoch,
     )
 
