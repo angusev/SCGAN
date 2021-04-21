@@ -194,7 +194,7 @@ if __name__ == "__main__":
     while (Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}").is_dir():
         i += 1
     checkpoint_path = Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}"
-    checkpoint_path.mkdir()
+    checkpoint_path.mkdir(parents=True)
     checkpoint_callback = ModelCheckpoint(
         filename=checkpoint_path,
         period=args.save_epoch,
