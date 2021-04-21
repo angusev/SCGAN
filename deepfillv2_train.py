@@ -111,6 +111,8 @@ class DeepFillV2(pl.LightningModule):
             with torch.no_grad():
                 (
                     masked_image,
+                    masked_sketch,
+                    masked_colormap,
                     coarse_image,
                     refined_image,
                     completed_image,
@@ -119,6 +121,8 @@ class DeepFillV2(pl.LightningModule):
                     visualization = np.hstack(
                         [
                             torgb(masked_image[j]),
+                            torgb(masked_sketch[j]),
+                            torgb(masked_colormap[j]),
                             torgb(coarse_image[j]),
                             torgb(refined_image[j]),
                             torgb(completed_image[j]),
@@ -166,8 +170,12 @@ class DeepFillV2(pl.LightningModule):
         refined_image = refined_image.detach().cpu().numpy()
         masked_image = image * mask
         masked_image = masked_image.cpu().numpy()
+        masked_sketch = sketch * (1 - mask)
+        masked_sketch = masked_sketch.cpu().numpy()
+        masked_colormap = colormap * (1 - mask)
+        masked_colormap = masked_colormap.cpu().numpy()
 
-        return masked_image, coarse_image, refined_image, completed_image
+        return masked_image, masked_sketch, masked_colormap, coarse_image, refined_image, completed_image
 
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
