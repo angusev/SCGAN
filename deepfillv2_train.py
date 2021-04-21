@@ -190,11 +190,10 @@ if __name__ == "__main__":
         "eM513qOnoTSydF2BDo4Z43su3", workspace="angusev", project_name="thesis"
     )
 
-    checkpoint_path = Path(constants.RUNS_FOLDER) / args.experiment
     i = 0
-    while checkpoint_path.with_suffix(str(i)).is_dir():
+    while (Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}").is_dir():
         i += 1
-    checkpoint_path = checkpoint_path.with_suffix(i)
+    checkpoint_path = Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}"
     checkpoint_path.mkdir()
     checkpoint_callback = ModelCheckpoint(
         filename=checkpoint_path,
