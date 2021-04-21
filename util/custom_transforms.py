@@ -42,7 +42,8 @@ class UserSimulator(object):
                     thickness=mask.shape[0] // 40,
                 )
                 start_coord = end_coord.copy()
-        return (mask > 0).astype(np.float32)
+        print("mask", np.unique(mask))
+        return mask
 
 
 if __name__ == "__main__":
