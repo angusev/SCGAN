@@ -11,7 +11,7 @@ class UserSimulator(object):
         self.angleScale = np.pi / 20
 
     def __call__(self, img):
-        mask = np.full((img.shape[0], img.shape[1], 1), 1.0)
+        mask = np.full((img.shape[0], img.shape[1], 1), 0.0)
         self.maxLength = mask.shape[0] / 4
 
         for i in range(self.clusters):
@@ -42,8 +42,7 @@ class UserSimulator(object):
                     thickness=mask.shape[0] // 40,
                 )
                 start_coord = end_coord.copy()
-        print("mask", np.unique(mask))
-        return mask
+        return (mask > 0).astype(np.float32)
 
 
 if __name__ == "__main__":
