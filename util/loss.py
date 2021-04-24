@@ -2,6 +2,9 @@ import torch
 
 
 class ReconstructionLoss(torch.nn.Module):
+    """
+        L1
+    """
     def __init__(
         self,
         coarse_hole_alpha,
