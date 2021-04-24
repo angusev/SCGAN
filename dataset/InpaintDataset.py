@@ -82,7 +82,7 @@ class SCDataset(Dataset):
         #     sketch=self.transform(sketch),
         #     mask=self.transform(mask),
         # )
-        mask = 0
+        mask = np.zeros_like(image[:, :, 0], dtype=np.float32)
         return dict(
             image=self.transform(image).float(),
             colormap=self.transform(colormap).float(),
