@@ -55,7 +55,7 @@ class DeepFillV2(pl.LightningModule):
         )
 
         generator_input = torch.cat(
-            (image * mask, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+            (colormap * (1 - mask), image * mask, sketch * (1 - mask)), dim=1
         )
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
@@ -116,7 +116,7 @@ class DeepFillV2(pl.LightningModule):
         )
 
         generator_input = torch.cat(
-            (image * mask, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+            (colormap * (1 - mask), image * mask, sketch * (1 - mask)), dim=1
         )
         generator_input = torch.cat((generator_input, mask), dim=1)
         coarse_image, refined_image = self.net_G(generator_input)
