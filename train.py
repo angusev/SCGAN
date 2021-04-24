@@ -162,7 +162,8 @@ class DeepFillV2(pl.LightningModule):
                 #         str(j) + ".jpg",
                 #     )
                 # )
-                self.logger.experiment.log_image(image_fromarray)
+                self.logger.experiment.log_image(image_fromarray,
+                                                 name=f"valid_{self.current_epoch}_j")
         return {
             "test_loss": torch.FloatTensor(
                 [
