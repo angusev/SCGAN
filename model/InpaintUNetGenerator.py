@@ -111,7 +111,7 @@ class UNetSkipConnectionBlock(torch.nn.Module):
         upnorm = norm_layer(outer_nc)
 
         if outermost:
-            upconv = my_convT(
+            upconv = torch.nn.ConvTranspose2ds(
                 inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1
             )
             down = [downconv]
@@ -125,7 +125,7 @@ class UNetSkipConnectionBlock(torch.nn.Module):
             up = [uprelu, upconv, upnorm]
             model = down + up
         else:
-            upconv = torch.nn.ConvTranspose2d(
+            upconv = my_convT(
                 inner_nc * 2,
                 outer_nc,
                 kernel_size=4,
