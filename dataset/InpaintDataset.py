@@ -108,7 +108,7 @@ class SCDataModule(pl.LightningDataModule):
         self.dry_try = dry_try
 
         self.transform = transforms.Compose(
-            [transforms.ToTensor()]
+            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
         )
 
         # self.dims is returned when you call dm.size()
