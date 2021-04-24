@@ -80,12 +80,8 @@ class SCDataset(Dataset):
             mask = np.zeros_like(image[:, :, 0], dtype=np.float32)
         else:
             mask = self.user_simulator(image)
-        # return DatasetItem(
-        #     image=self.transform(image),
-        #     colormap=self.transform(colormap),
-        #     sketch=self.transform(sketch),
-        #     mask=self.transform(mask),
-        # )
+        
+        image = colormap
         return dict(
             image=self.transform(image).float(),
             colormap=self.transform(colormap).float(),
