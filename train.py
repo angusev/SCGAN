@@ -47,9 +47,6 @@ class DeepFillV2(pl.LightningModule):
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):
-        if batch_idx == 0:
-            self.visualize_batch(batch, "train")
-
         image, colormap, sketch, mask = (
             batch["image"],
             batch["colormap"],
@@ -76,6 +73,8 @@ class DeepFillV2(pl.LightningModule):
 
         if optimizer_idx == 0:
             # generator training
+            if batch_idx == 0:
+                self.visualize_batch(batch, "train")
 
             gen_loss = (
                 -self.hparams.gen_loss_alpha * torch.mean(d_fake)
