@@ -122,14 +122,6 @@ class DeepFillV2(pl.LightningModule):
         coarse_image, refined_image = self.net_G(generator_input)
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
-        (
-            masked_image,
-            masked_sketch,
-            masked_colormap,
-            coarse_image,
-            refined_image,
-            completed_image,
-        ) = self.generate_images(batch)
         if batch_idx == 0:
             (
                 masked_image,
@@ -140,6 +132,7 @@ class DeepFillV2(pl.LightningModule):
                 completed_image,
             ) = self.generate_images(batch)
             print("completed_image", completed_image.min(), completed_image.max())
+            print("masked_image", masked_image.min(), masked_image.max())
             for j in range(min(4, batch["image"].size(0))):
                 visualization = np.hstack(
                     [
@@ -163,7 +156,7 @@ class DeepFillV2(pl.LightningModule):
                 #     )
                 # )
                 self.logger.experiment.log_image(image_fromarray,
-                                                 name=f"valid_{self.current_epoch}_j")
+                                                 name=f"valid_{self.current_epoch}_{j}")
         return {
             "test_loss": torch.FloatTensor(
                 [
