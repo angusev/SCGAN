@@ -49,11 +49,12 @@ class DatasetItem:
 
 
 class SCDataset(Dataset):
-    def __init__(self, data_root, files):
+    def __init__(self, data_root, files, sc_only=False):
         self._data_root = Path(data_root)
         self._files = files
         self.transform = transforms.Compose([transforms.ToTensor()])
         self.user_simulator = UserSimulator()
+        self.sc_only = sc_only
 
     def __getitem__(self, index: int) -> DatasetItem:
         pathes = {
@@ -75,14 +76,16 @@ class SCDataset(Dataset):
         assert image is not None
         assert colormap is not None, f"{pathes['colormap']} does't exist"
         assert sketch is not None
-        mask = self.user_simulator(image)
+        if self.sc_only:
+            mask = np.zeros_like(image[:, :, 0], dtype=np.float32)
+        else:
+            mask = self.user_simulator(image)
         # return DatasetItem(
         #     image=self.transform(image),
         #     colormap=self.transform(colormap),
         #     sketch=self.transform(sketch),
         #     mask=self.transform(mask),
         # )
-        mask = np.zeros_like(image[:, :, 0], dtype=np.float32)
         return dict(
             image=self.transform(image).float(),
             colormap=self.transform(colormap).float(),
@@ -101,12 +104,14 @@ class SCDataModule(pl.LightningDataModule):
         batch_size: int = 64,
         num_workers: int = 3,
         dry_try: bool = False,
+        sc_only: bool = False
     ):
         super().__init__()
         self.data_dir = Path(data_dir)
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.dry_try = dry_try
+        self.sc_only = sc_only
 
         self.transform = transforms.Compose([transforms.ToTensor()])
 
@@ -122,7 +127,7 @@ class SCDataModule(pl.LightningDataModule):
 
         if self.dry_try:
             files = files[::100]
-        dataset = SCDataset(self.data_dir, files)
+        dataset = SCDataset(self.data_dir, files, self.sc_only)
 
         n = len(dataset)
         lengths = [int(n * 0.8), int(n * 0.15), int(n * 0.05)]

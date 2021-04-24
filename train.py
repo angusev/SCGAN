@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
     model = DeepFillV2(args)
     train_loader = SCDataModule(
-        "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/", dry_try=args.dry_try
+        "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/", dry_try=args.dry_try, sc_only=args.sc_only
     )
 
     trainer = Trainer(
