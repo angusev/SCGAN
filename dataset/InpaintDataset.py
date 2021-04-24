@@ -68,8 +68,8 @@ class SCDataset(Dataset):
             ),
         }
 
-        image = cv2.imread(pathes["image"], -1) / 255
-        colormap = cv2.imread(pathes["colormap"], -1) / 255
+        image = (cv2.imread(pathes["image"], -1) / 255 - 0.5) * 2
+        colormap = (cv2.imread(pathes["colormap"], -1) / 255 - 0.5) * 2
         sketch = cv2.imread(pathes["sketch"], -1)
 
         assert image is not None
@@ -108,7 +108,7 @@ class SCDataModule(pl.LightningDataModule):
         self.dry_try = dry_try
 
         self.transform = transforms.Compose(
-            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+            [transforms.ToTensor()]
         )
 
         # self.dims is returned when you call dm.size()
@@ -139,7 +139,9 @@ class SCDataModule(pl.LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            self.valid_ds, batch_size=self.batch_size, num_workers=self.num_workers,
+            self.valid_ds,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
             shuffle=True
         )
 
