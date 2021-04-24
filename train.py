@@ -236,7 +236,10 @@ if __name__ == "__main__":
         experiment_name=checkpoint_path.name,
     )
 
-    model = DeepFillV2(args)
+    if args.resume:
+        model = DeepFillV2.load_from_checkpoint(args.resume)
+    else:
+        model = DeepFillV2(args)
     train_loader = SCDataModule(
         "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/", dry_try=args.dry_try, sc_only=args.sc_only
     )
