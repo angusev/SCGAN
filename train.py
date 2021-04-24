@@ -214,7 +214,7 @@ class DeepFillV2(pl.LightningModule):
             self.logger.experiment.log_image(
                 image_fromarray, name=f"{stage}_epoch{self.current_epoch}_{j}"
             )
-            
+
     def validation_epoch_end(self, _):
         torch.save(self.net_G.state_dict(), self.hparams.checkpoint_path / "last_G.pth")
         torch.save(self.net_D.state_dict(), self.hparams.checkpoint_path / "last_D.pth")
