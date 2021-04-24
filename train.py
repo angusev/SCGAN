@@ -69,10 +69,10 @@ class DeepFillV2(pl.LightningModule):
         )
         d_fake = self.net_D(discriminator_input_fake)
 
-        if optimizer_idx == 0:
+        if optimizer_idx == 0 or self.hparams.sc_only:
             # generator training
 
-            gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake)
+            gen_loss = 0.0 if self.hparams.sc_only else -self.hparams.gen_loss_alpha * torch.mean(d_fake)
             total_loss = gen_loss + reconstruction_loss
             return {
                 "loss": total_loss,
@@ -86,8 +86,7 @@ class DeepFillV2(pl.LightningModule):
                     "total_loss": total_loss,
                 },
             }
-
-        if optimizer_idx == 1:
+        else:
             # discriminator training
             d_real = self.net_D(discriminator_input_real)
 
