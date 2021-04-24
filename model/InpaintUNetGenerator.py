@@ -14,10 +14,10 @@ def my_convT(
     padding_mode="zeros",
 ):
     return torch.nn.Sequential(
-        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
         torch.nn.Conv2d(
             in_channels, out_channels, kernel_size, stride=stride, padding=padding, bias=bias
         ),
+        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
     )
 
 
