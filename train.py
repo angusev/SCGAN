@@ -243,11 +243,9 @@ if __name__ == "__main__":
         project_name="thesis",
         experiment_name=checkpoint_path.name,
     )
-    print("args keys:")
-    print(args.keys())
 
     if args.resume:
-        model = DeepFillV2.load_from_checkpoint(args.resume)
+        model = DeepFillV2.load_from_checkpoint(args, checkpoint_path=args.resume)
     else:
         model = DeepFillV2(args)
     train_loader = SCDataModule(
