@@ -118,14 +118,14 @@ class UNetSkipConnectionBlock(torch.nn.Module):
             up = [uprelu, upconv, torch.nn.Tanh()]
             model = down + [submodule] + up
         elif innermost:
-            upconv = my_convT(
+            upconv = torch.nn.ConvTranspose2d(
                 inner_nc, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias
             )
             down = [downrelu, downconv]
             up = [uprelu, upconv, upnorm]
             model = down + up
         else:
-            upconv = my_convT(
+            upconv = torch.nn.ConvTranspose2d(
                 inner_nc * 2,
                 outer_nc,
                 kernel_size=4,
