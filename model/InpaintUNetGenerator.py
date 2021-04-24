@@ -2,12 +2,24 @@ import torch
 
 
 def my_convT(
-    in_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1, groups=1, bias=True, dilation=1, padding_mode='zeros'
+    in_channels,
+    out_channels,
+    kernel_size=3,
+    stride=2,
+    padding=1,
+    output_padding=1,
+    groups=1,
+    bias=True,
+    dilation=1,
+    padding_mode="zeros",
 ):
     return torch.nn.Sequential(
         torch.nn.Upsample(scale_factor=2, mode="bilinear"),
-        torch.nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding, bias=bias),
+        torch.nn.Conv2d(
+            in_channels, out_channels, kernel_size, padding=padding, bias=bias
+        ),
     )
+
 
 # torch.nn.ConvTranspose2d = my_convT
 

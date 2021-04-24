@@ -99,7 +99,7 @@ class SCDataModule(pl.LightningDataModule):
         batch_size: int = 64,
         num_workers: int = 3,
         dry_try: bool = False,
-        sc_only: bool = False
+        sc_only: bool = False,
     ):
         super().__init__()
         self.data_dir = Path(data_dir)

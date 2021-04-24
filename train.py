@@ -47,6 +47,9 @@ class DeepFillV2(pl.LightningModule):
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):
+        if batch_idx == 0:
+            self.visualize_batch(batch, "train")
+
         image, colormap, sketch, mask = (
             batch["image"],
             batch["colormap"],
@@ -58,17 +61,15 @@ class DeepFillV2(pl.LightningModule):
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         coarse_image, refined_image = self.net_G(generator_input)
-
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
-        discriminator_input_real = torch.cat(
-            (image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
-        )
-        discriminator_input_fake = torch.cat(
-            (coarse_image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
-        )
-
         if not self.hparams.sc_only:
+            discriminator_input_real = torch.cat(
+                (image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
+            )
+            discriminator_input_fake = torch.cat(
+                (coarse_image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
+            )
             d_fake = self.net_D(discriminator_input_fake)
         else:
             d_fake = 0.0
@@ -76,7 +77,11 @@ class DeepFillV2(pl.LightningModule):
         if optimizer_idx == 0:
             # generator training
 
-            gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake) if not self.hparams.sc_only else 0.0
+            gen_loss = (
+                -self.hparams.gen_loss_alpha * torch.mean(d_fake)
+                if not self.hparams.sc_only
+                else 0.0
+            )
             total_loss = gen_loss + reconstruction_loss
             return {
                 "loss": total_loss,
@@ -109,7 +114,6 @@ class DeepFillV2(pl.LightningModule):
 
     @torch.no_grad()
     def validation_step(self, batch, batch_idx):
-        torgb = ToNumpyRGB256(-1, 1)
         image, colormap, sketch, mask = (
             batch["image"],
             batch["colormap"],
@@ -125,39 +129,7 @@ class DeepFillV2(pl.LightningModule):
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
         if batch_idx == 0:
-            (
-                masked_image,
-                masked_sketch,
-                masked_colormap,
-                coarse_image,
-                refined_image,
-                completed_image,
-            ) = self.generate_images(batch)
-            for j in range(min(4, batch["image"].size(0))):
-                visualization = np.hstack(
-                    [
-                        torgb(masked_image[j]),
-                        torgb(masked_sketch[j]),
-                        torgb(masked_colormap[j]),
-                        torgb(coarse_image[j]),
-                        torgb(refined_image[j]),
-                        torgb(completed_image[j]),
-                        torgb(batch["image"][j].cpu().numpy()),
-                    ]
-                )
-                image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
-                # image_fromarray.save(
-                #     os.path.join(
-                #         constants.RUNS_FOLDER,
-                #         self.hparams.dataset,
-                #         self.hparams.experiment,
-                #         "visualization",
-                #         str(j) + ".jpg",
-                #     )
-                # )
-                self.logger.experiment.log_image(
-                    image_fromarray, name=f"valid_{self.current_epoch}_{j}"
-                )
+            self.visualize_batch(batch, "valid")
         return {
             "test_loss": torch.FloatTensor(
                 [
@@ -203,6 +175,42 @@ class DeepFillV2(pl.LightningModule):
             completed_image,
         )
 
+    def visualize_batch(self, batch, stage):
+        torgb = ToNumpyRGB256(-1, 1)
+        (
+            masked_image,
+            masked_sketch,
+            masked_colormap,
+            coarse_image,
+            refined_image,
+            completed_image,
+        ) = self.generate_images(batch)
+        for j in range(min(4, batch["image"].size(0))):
+            visualization = np.hstack(
+                [
+                    torgb(masked_image[j]),
+                    torgb(masked_sketch[j]),
+                    torgb(masked_colormap[j]),
+                    torgb(coarse_image[j]),
+                    torgb(refined_image[j]),
+                    torgb(completed_image[j]),
+                    torgb(batch["image"][j].cpu().numpy()),
+                ]
+            )
+            image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
+            # image_fromarray.save(
+            #     os.path.join(
+            #         constants.RUNS_FOLDER,
+            #         self.hparams.dataset,
+            #         self.hparams.experiment,
+            #         "visualization",
+            #         str(j) + ".jpg",
+            #     )
+            # )
+            self.logger.experiment.log_image(
+                image_fromarray, name=f"{stage}_epoch{self.current_epoch}_{j}"
+            )
+            
     def test_step(self, batch, batch_idx):
         return self.validation_step(batch, batch_idx)
 
@@ -242,7 +250,9 @@ if __name__ == "__main__":
     else:
         model = DeepFillV2(args)
     train_loader = SCDataModule(
-        "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/", dry_try=args.dry_try, sc_only=args.sc_only
+        "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/",
+        dry_try=args.dry_try,
+        sc_only=args.sc_only,
     )
 
     trainer = Trainer(
