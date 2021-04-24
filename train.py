@@ -155,15 +155,16 @@ class DeepFillV2(pl.LightningModule):
                 #         str(j) + ".jpg",
                 #     )
                 # )
-                self.logger.experiment.log_image(image_fromarray,
-                                                 name=f"valid_{self.current_epoch}_{j}")
+                self.logger.experiment.log_image(
+                    image_fromarray, name=f"valid_{self.current_epoch}_{j}"
+                )
         return {
             "test_loss": torch.FloatTensor(
                 [
                     -1.0,
                 ]
             ),
-            "log": {"val_reconstruction_loss": reconstruction_loss}
+            "log": {"val_reconstruction_loss": reconstruction_loss},
         }
 
     def generate_images(self, batch):
@@ -223,11 +224,6 @@ class DeepFillV2(pl.LightningModule):
 if __name__ == "__main__":
     args = arguments.parse_arguments()
 
-    # logger = WandbLogger(name="try", project="thesis")
-    logger = CometLogger(
-        "eM513qOnoTSydF2BDo4Z43su3", workspace="angusev", project_name="thesis"
-    )
-
     i = 0
     while (Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}").is_dir():
         i += 1
@@ -236,6 +232,14 @@ if __name__ == "__main__":
     checkpoint_callback = ModelCheckpoint(
         dirpath=checkpoint_path,
         period=args.save_epoch,
+    )
+
+    # logger = WandbLogger(name="try", project="thesis")
+    logger = CometLogger(
+        "eM513qOnoTSydF2BDo4Z43su3",
+        workspace="angusev",
+        project_name="thesis",
+        experiment_name=checkpoint_path.name,
     )
 
     model = DeepFillV2(args)

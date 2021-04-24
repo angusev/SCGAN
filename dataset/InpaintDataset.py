@@ -82,6 +82,7 @@ class SCDataset(Dataset):
         #     sketch=self.transform(sketch),
         #     mask=self.transform(mask),
         # )
+        mask = 0
         return dict(
             image=self.transform(image).float(),
             colormap=self.transform(colormap).float(),
@@ -107,9 +108,7 @@ class SCDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.dry_try = dry_try
 
-        self.transform = transforms.Compose(
-            [transforms.ToTensor()]
-        )
+        self.transform = transforms.Compose([transforms.ToTensor()])
 
         # self.dims is returned when you call dm.size()
         # Setting default dims here because we know them.
@@ -134,7 +133,7 @@ class SCDataModule(pl.LightningDataModule):
             self.train_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            shuffle=True     
+            shuffle=True,
         )
 
     def val_dataloader(self):
@@ -142,11 +141,13 @@ class SCDataModule(pl.LightningDataModule):
             self.valid_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            shuffle=True
+            shuffle=True,
         )
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_ds, batch_size=self.batch_size, num_workers=self.num_workers,
-            shuffle=True
+            self.test_ds,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            shuffle=True,
         )
