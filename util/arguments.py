@@ -98,5 +98,6 @@ def parse_arguments():
     )
     parser.add_argument("--dry_try", action="store_true")
     parser.add_argument("--sc_only", action="store_true")
-    parser.add_argument("--resume", type=str, default=None)
+    parser.add_argument("--load_G", type=str, default=None)
+    parser.add_argument("--load_D", type=str, default=None)
     return parser.parse_args()

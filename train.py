@@ -29,8 +29,15 @@ class DeepFillV2(pl.LightningModule):
     def __init__(self, args):
         super(DeepFillV2, self).__init__()
         self.hparams = args
+
         self.net_G = get_generator(args)
         self.net_D = InpaintSADiscriminator(args.input_nc)
+
+        if args.load_G:
+            model.load_state_dict(torch.load(args.load_G))
+        if args.load_D:
+            model.load_state_dict(torch.load(args.load_D))
+
         print("#Params Generator: ", f"{count_parameters(self.net_G) / 1e6}M")
         print("#Params Discriminator: ", f"{count_parameters(self.net_D) / 1e6}M")
         self.recon_loss = ReconstructionLoss(
@@ -210,17 +217,10 @@ class DeepFillV2(pl.LightningModule):
                 image_fromarray, name=f"{stage}_epoch{self.current_epoch}_{j}"
             )
             
-    def test_step(self, batch, batch_idx):
-        return self.validation_step(batch, batch_idx)
+    def validation_epoch_end(self, _):
+        torch.save(self.net_G.state_dict(), self.checkpoint_path / "last_G.pth")
+        torch.save(self.net_D.state_dict(), self.checkpoint_path / "last_D.pth")
 
-    def test_end(self, outputs):
-        return {
-            "test_loss": torch.FloatTensor(
-                [
-                    -1.0,
-                ]
-            )
-        }
 
 
 if __name__ == "__main__":
@@ -231,10 +231,7 @@ if __name__ == "__main__":
         i += 1
     checkpoint_path = Path(constants.RUNS_FOLDER) / f"{args.experiment}_{i}"
     checkpoint_path.mkdir(parents=True)
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=checkpoint_path,
-        period=args.save_epoch,
-    )
+    args.checkpoint_path = checkpoint_path
 
     # logger = WandbLogger(name="try", project="thesis")
     logger = CometLogger(
@@ -244,10 +241,7 @@ if __name__ == "__main__":
         experiment_name=checkpoint_path.name,
     )
 
-    if args.resume:
-        model = DeepFillV2.load_from_checkpoint(checkpoint_path=args.resume)
-    else:
-        model = DeepFillV2(args)
+    model = DeepFillV2(args)
     train_loader = SCDataModule(
         "/home/mrartemev/data/Students/Andrey/CelebAMask-HQ/",
         dry_try=args.dry_try,
@@ -257,7 +251,6 @@ if __name__ == "__main__":
     trainer = Trainer(
         gpus=-1,
         logger=logger,
-        checkpoint_callback=checkpoint_callback,
         check_val_every_n_epoch=2,
     )
 
