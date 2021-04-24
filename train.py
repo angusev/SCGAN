@@ -63,10 +63,10 @@ class DeepFillV2(pl.LightningModule):
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
         discriminator_input_real = torch.cat(
-            (image, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+            (image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         discriminator_input_fake = torch.cat(
-            (coarse_image, colormap * (1 - mask), sketch * (1 - mask)), dim=1
+            (coarse_image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         d_fake = self.net_D(discriminator_input_fake)
 
