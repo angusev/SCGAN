@@ -9,7 +9,7 @@ def my_convT(
         torch.nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding, bias=bias),
     )
 
-torch.nn.ConvTranspose2d = my_convT
+# torch.nn.ConvTranspose2d = my_convT
 
 
 class InpaintUNetGenerator(torch.nn.Module):
