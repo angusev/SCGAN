@@ -83,7 +83,7 @@ class DeepFillV2(pl.LightningModule):
                 },
                 "log": {
                     "gen_loss": gen_loss,
-                    "reconstruction_loss": reconstruction_loss,
+                    "train_reconstruction_loss": reconstruction_loss,
                     "total_loss": total_loss,
                 },
             }
@@ -105,47 +105,64 @@ class DeepFillV2(pl.LightningModule):
                 },
             }
 
+    @torch.no_grad()
     def validation_step(self, batch, batch_idx):
         torgb = ToNumpyRGB256(-1, 1)
+        image, colormap, sketch, mask = (
+            batch["image"],
+            batch["colormap"],
+            batch["sketch"],
+            batch["mask"],
+        )
+        (
+            masked_image,
+            masked_sketch,
+            masked_colormap,
+            coarse_image,
+            refined_image,
+            completed_image,
+        ) = self.generate_images(batch)
+        reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
         if batch_idx == 0:
-            with torch.no_grad():
-                (
-                    masked_image,
-                    masked_sketch,
-                    masked_colormap,
-                    coarse_image,
-                    refined_image,
-                    completed_image,
-                ) = self.generate_images(batch)
-                for j in range(min(4, batch["image"].size(0))):
-                    visualization = np.hstack(
-                        [
-                            torgb(masked_image[j]),
-                            torgb(masked_sketch[j]),
-                            torgb(masked_colormap[j]),
-                            torgb(coarse_image[j]),
-                            torgb(refined_image[j]),
-                            torgb(completed_image[j]),
-                            torgb(batch["image"][j].cpu().numpy()),
-                        ]
-                    )
-                    image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
-                    # image_fromarray.save(
-                    #     os.path.join(
-                    #         constants.RUNS_FOLDER,
-                    #         self.hparams.dataset,
-                    #         self.hparams.experiment,
-                    #         "visualization",
-                    #         str(j) + ".jpg",
-                    #     )
-                    # )
-                    self.logger.experiment.log_image(image_fromarray)
+            (
+                masked_image,
+                masked_sketch,
+                masked_colormap,
+                coarse_image,
+                refined_image,
+                completed_image,
+            ) = self.generate_images(batch)
+            print("completed_image", completed_image.min(), completed_image.max())
+            for j in range(min(4, batch["image"].size(0))):
+                visualization = np.hstack(
+                    [
+                        torgb(masked_image[j]),
+                        torgb(masked_sketch[j]),
+                        torgb(masked_colormap[j]),
+                        torgb(coarse_image[j]),
+                        torgb(refined_image[j]),
+                        torgb(completed_image[j]),
+                        torgb(batch["image"][j].cpu().numpy()),
+                    ]
+                )
+                image_fromarray = Image.fromarray(visualization[:, :, [2, 1, 0]])
+                # image_fromarray.save(
+                #     os.path.join(
+                #         constants.RUNS_FOLDER,
+                #         self.hparams.dataset,
+                #         self.hparams.experiment,
+                #         "visualization",
+                #         str(j) + ".jpg",
+                #     )
+                # )
+                self.logger.experiment.log_image(image_fromarray)
         return {
             "test_loss": torch.FloatTensor(
                 [
                     -1.0,
                 ]
-            )
+            ),
+            "log": {"val_reconstruction_loss": reconstruction_loss}
         }
 
     def generate_images(self, batch):
