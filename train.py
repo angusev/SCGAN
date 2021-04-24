@@ -34,9 +34,9 @@ class DeepFillV2(pl.LightningModule):
         self.net_D = InpaintSADiscriminator(args.input_nc)
 
         if args.load_G:
-            net_G.load_state_dict(torch.load(args.load_G))
+            self.net_G.load_state_dict(torch.load(args.load_G))
         if args.load_D:
-            net_D.load_state_dict(torch.load(args.load_D))
+            self.net_D.load_state_dict(torch.load(args.load_D))
 
         print("#Params Generator: ", f"{count_parameters(self.net_G) / 1e6}M")
         print("#Params Discriminator: ", f"{count_parameters(self.net_D) / 1e6}M")
