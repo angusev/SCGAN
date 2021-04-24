@@ -218,9 +218,8 @@ class DeepFillV2(pl.LightningModule):
             )
             
     def validation_epoch_end(self, _):
-        torch.save(self.net_G.state_dict(), self.checkpoint_path / "last_G.pth")
-        torch.save(self.net_D.state_dict(), self.checkpoint_path / "last_D.pth")
-
+        torch.save(self.net_G.state_dict(), self.hparams.checkpoint_path / "last_G.pth")
+        torch.save(self.net_D.state_dict(), self.hparams.checkpoint_path / "last_D.pth")
 
 
 if __name__ == "__main__":
