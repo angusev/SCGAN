@@ -245,7 +245,7 @@ if __name__ == "__main__":
     )
 
     if args.resume:
-        model = DeepFillV2.load_from_checkpoint(args.resume)
+        model = DeepFillV2.load_from_checkpoint(checkpoint_path=args.resume)
     else:
         model = DeepFillV2(args)
     train_loader = SCDataModule(
