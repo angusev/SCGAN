@@ -76,7 +76,7 @@ class DeepFillV2(pl.LightningModule):
         if optimizer_idx == 0:
             # generator training
 
-            gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake)
+            gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake) if not self.hparams.sc_only else 0.0
             total_loss = gen_loss + reconstruction_loss
             return {
                 "loss": total_loss,
