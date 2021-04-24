@@ -1,6 +1,17 @@
 import torch
 
 
+def my_convT(
+    in_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1
+):
+    return torch.nn.Sequential(
+        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
+        torch.nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding),
+    )
+
+torch.nn.ConvTranspose2d = my_convT
+
+
 class InpaintUNetGenerator(torch.nn.Module):
     """
     Borrowed from Pix2Pix github implementation

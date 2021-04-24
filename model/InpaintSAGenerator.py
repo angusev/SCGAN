@@ -9,17 +9,6 @@ from model.Layers.SelfAttention import SelfAttention
 from model import get_pad
 
 
-def my_convT(
-    in_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1
-):
-    return nn.Sequential(
-        nn.Upsample(scale_factor=2, mode="bilinear"),
-        nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding),
-    )
-
-nn.ConvTranspose2d = my_convT
-
-
 class InpaintSAGenerator(torch.nn.Module):
     def __init__(
         self,
