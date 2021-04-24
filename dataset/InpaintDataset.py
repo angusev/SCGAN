@@ -68,8 +68,8 @@ class SCDataset(Dataset):
             ),
         }
 
-        image = cv2.imread(pathes["image"], -1)
-        colormap = cv2.imread(pathes["colormap"], -1)
+        image = cv2.imread(pathes["image"], -1) / 255
+        colormap = cv2.imread(pathes["colormap"], -1) / 255
         sketch = cv2.imread(pathes["sketch"], -1)
 
         assert image is not None
