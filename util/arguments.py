@@ -97,4 +97,5 @@ def parse_arguments():
         help="validation samples to be visualized",
     )
     parser.add_argument("--dry_try", action="store_true")
+    parser.add_argument("--sc_only", action="store_true")
     return parser.parse_args()
