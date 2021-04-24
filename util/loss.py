@@ -22,17 +22,17 @@ class ReconstructionLoss(torch.nn.Module):
         mask_flat = mask.view(mask.size(0), -1)
         
         if mask.min() == 0.0 and mask.max() == 1.0:
-            loss_a = self.coarse_hole_alpha * torch.mean(
+            loss_a = self.coarse_nohole_alpha * torch.mean(
                 torch.abs(image - coarse) * mask / (1 - mask_flat.mean(1).view(-1, 1, 1, 1))
             )
-            loss_b = self.coarse_nohole_alpha * torch.mean(
+            loss_b = self.coarse_hole_alpha * torch.mean(
                 torch.abs(image - coarse) * (1 - mask) / mask_flat.mean(1).view(-1, 1, 1, 1)
             )
 
-            loss_c = self.refine_hole_alpha * torch.mean(
+            loss_c = self.refine_nohole_alpha * torch.mean(
                 torch.abs(image - refined) * mask / (1 - mask_flat.mean(1).view(-1, 1, 1, 1))
             )
-            loss_d = self.refine_nohole_alpha * torch.mean(
+            loss_d = self.refine_hole_alpha * torch.mean(
                 torch.abs(image - refined) * (1 - mask) / mask_flat.mean(1).view(-1, 1, 1, 1)
             )
 

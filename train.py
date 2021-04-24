@@ -38,8 +38,6 @@ class DeepFillV2(pl.LightningModule):
         if args.load_D:
             self.net_D.load_state_dict(torch.load(args.load_D))
 
-        print("#Params Generator: ", f"{count_parameters(self.net_G) / 1e6}M")
-        print("#Params Discriminator: ", f"{count_parameters(self.net_D) / 1e6}M")
         self.recon_loss = ReconstructionLoss(
             args.l1_c_h, args.l1_c_nh, args.l1_r_h, args.l1_r_nh
         )
@@ -50,7 +48,7 @@ class DeepFillV2(pl.LightningModule):
         lr = self.hparams.lr
         decay = self.hparams.weight_decay
         opt_g = torch.optim.Adam(self.net_G.parameters(), lr=lr, weight_decay=decay)
-        opt_d = torch.optim.Adam(self.net_D.parameters(), lr=lr, weight_decay=decay)
+        opt_d = torch.optim.Adam(self.net_D.parameters(), lr=4 * lr, weight_decay=decay)
         return [opt_g, opt_d], []
 
     def training_step(self, batch, batch_idx, optimizer_idx):

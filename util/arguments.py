@@ -36,7 +36,7 @@ def parse_arguments():
     parser.add_argument(
         "--save_epoch", type=int, default=5, help="save every nth epoch"
     )
-    parser.add_argument("--lr", type=float, default=0.00005, help="learning rate")
+    parser.add_argument("--lr", type=float, default=0.0001, help="learning rate")
     parser.add_argument("--weight_decay", type=float, default=0.0, help="weight decay.")
     parser.add_argument(
         "--l1_c_h",
