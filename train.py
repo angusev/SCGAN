@@ -226,7 +226,7 @@ if __name__ == "__main__":
     )
 
     trainer = Trainer(
-        gpus=2,
+        gpus=-1,
         logger=logger,
         checkpoint_callback=checkpoint_callback,
         check_val_every_n_epoch=2,
