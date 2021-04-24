@@ -67,7 +67,7 @@ class DeepFillV2(pl.LightningModule):
         coarse_image, refined_image = self.net_G(generator_input)
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
 
-        if not self.hparams.sc_only:
+        if not self.hparams.l1_only:
             discriminator_input_real = torch.cat(
                 (image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
             )
@@ -85,7 +85,7 @@ class DeepFillV2(pl.LightningModule):
 
             gen_loss = (
                 -self.hparams.gen_loss_alpha * torch.mean(d_fake)
-                if not self.hparams.sc_only
+                if not self.hparams.l1_only
                 else 0.0
             )
             total_loss = gen_loss + reconstruction_loss
@@ -101,7 +101,7 @@ class DeepFillV2(pl.LightningModule):
                     "total_loss": total_loss,
                 },
             }
-        if optimizer_idx == 1 and not self.hparams.sc_only:
+        if optimizer_idx == 1 and not self.hparams.l1_only:
             # discriminator training
             d_real = self.net_D(discriminator_input_real)
 
