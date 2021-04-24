@@ -67,12 +67,16 @@ class DeepFillV2(pl.LightningModule):
         discriminator_input_fake = torch.cat(
             (coarse_image, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
-        d_fake = self.net_D(discriminator_input_fake)
+
+        if not self.hparams.sc_only:
+            d_fake = self.net_D(discriminator_input_fake)
+        else:
+            d_fake = 0.0
 
         if optimizer_idx == 0 or self.hparams.sc_only:
             # generator training
 
-            gen_loss = 0.0 if self.hparams.sc_only else -self.hparams.gen_loss_alpha * torch.mean(d_fake)
+            gen_loss = -self.hparams.gen_loss_alpha * torch.mean(d_fake)
             total_loss = gen_loss + reconstruction_loss
             return {
                 "loss": total_loss,
@@ -129,8 +133,6 @@ class DeepFillV2(pl.LightningModule):
                 refined_image,
                 completed_image,
             ) = self.generate_images(batch)
-            print("completed_image", completed_image.min(), completed_image.max())
-            print("masked_image", masked_image.min(), masked_image.max())
             for j in range(min(4, batch["image"].size(0))):
                 visualization = np.hstack(
                     [
