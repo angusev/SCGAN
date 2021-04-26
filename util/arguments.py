@@ -41,25 +41,25 @@ def parse_arguments():
     parser.add_argument(
         "--l1_c_h",
         type=float,
-        default=1.2,
+        default=0.12,
         help="reconstruction coarse weight for holes",
     )
     parser.add_argument(
         "--l1_c_nh",
         type=float,
-        default=1.2,
+        default=0.12,
         help="reconstruction coarse weight for non-holes",
     )
     parser.add_argument(
         "--l1_r_h",
         type=float,
-        default=1.2,
+        default=0.12,
         help="reconstruction coarse weight for holes",
     )
     parser.add_argument(
         "--l1_r_nh",
         type=float,
-        default=1.2,
+        default=0.12,
         help="reconstruction coarse weight for non-holes",
     )
     parser.add_argument(
@@ -101,4 +101,15 @@ def parse_arguments():
     parser.add_argument("--l1_only", action="store_true")
     parser.add_argument("--load_G", type=str, default=None)
     parser.add_argument("--load_D", type=str, default=None)
+
+    parser.add_argument(
+        "--l1_weight",
+        type=float,
+        default=1.0,
+    )
+    parser.add_argument(
+        "--vgg_weight",
+        type=float,
+        default=1.0,
+    )
     return parser.parse_args()

@@ -15,7 +15,7 @@ import numpy as np
 from model import get_generator
 from model.InpaintSADiscriminator import InpaintSADiscriminator
 from dataset import InpaintDataset
-from util.loss import ReconstructionLoss
+from util.loss import ReconstructionLoss, PerceptionLoss
 from util.transforms import ToNumpyRGB256
 from PIL import Image
 
@@ -41,6 +41,7 @@ class DeepFillV2(pl.LightningModule):
         self.recon_loss = ReconstructionLoss(
             args.l1_c_h, args.l1_c_nh, args.l1_r_h, args.l1_r_nh
         )
+        self.vgg_loss = PerceptionLoss()
         self.refined_as_discriminator_input = args.refined_as_discriminator_input
         # self.visualization_dataloader = self.setup_dataloader_for_visualizations()
 
@@ -63,7 +64,8 @@ class DeepFillV2(pl.LightningModule):
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         coarse_image, refined_image = self.net_G(generator_input)
-        reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
+        reconstruction_loss = args.l1_weight * self.recon_loss(image, coarse_image, refined_image, mask)
+        vgg_loss = args.vgg_weight * self.vgg_loss(image, coarse_image, refined_image, mask)
 
         if not self.hparams.l1_only:
             discriminator_input_real = torch.cat(
@@ -86,7 +88,7 @@ class DeepFillV2(pl.LightningModule):
                 if not self.hparams.l1_only
                 else 0.0
             )
-            total_loss = gen_loss + reconstruction_loss
+            total_loss = gen_loss + reconstruction_loss + vgg_loss
             return {
                 "loss": total_loss,
                 "progress_bar": {
@@ -96,6 +98,7 @@ class DeepFillV2(pl.LightningModule):
                 "log": {
                     "gen_loss": gen_loss,
                     "train_reconstruction_loss": reconstruction_loss,
+                    "train_perceptual_loss": vgg_loss,
                     "total_loss": total_loss,
                 },
             }
@@ -116,7 +119,6 @@ class DeepFillV2(pl.LightningModule):
                 },
             }
 
-    @torch.no_grad()
     def validation_step(self, batch, batch_idx):
         image, colormap, sketch, mask = (
             batch["image"],

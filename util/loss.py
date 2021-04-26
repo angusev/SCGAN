@@ -1,4 +1,7 @@
 import torch
+import torch.nn.functional as F
+
+from util import dnnlib
 
 
 class ReconstructionLoss(torch.nn.Module):
@@ -46,4 +49,27 @@ class ReconstructionLoss(torch.nn.Module):
 
             return loss_a + loss_b + loss_c + loss_d
         else:
-        return torch.abs(coarse - image).mean() + torch.abs(refined - image).mean()
+            return torch.abs(coarse - image).mean() + torch.abs(refined - image).mean()
+
+
+
+class PerceptionLoss(torch.nn.Module):
+    """
+    VGG16
+    """
+    def __init__(self):
+        url = "https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytуorch/pretrained/metrics/vgg16.pt"
+        with dnnlib.util.open_url(url) as f:
+            self.vgg16 = torch.jit.load(f).eval()
+    
+    def forward(self, images, coarses, refineds, masks):
+        if images.shape[2] > 256:
+            images = F.interpolate(images, size=(256, 256), mode="area")
+            coarses = F.interpolate(coarses, size=(256, 256), mode="area")
+            refineds = F.interpolate(refineds, size=(256, 256), mode="area")
+        target_features = self.vgg16(images, resize_images=False, return_lpips=True)
+        coarse_features = self.vgg16(coarses, resize_images=False, return_lpips=True)
+        refineds_features = self.vgg16(refineds, resize_images=False, return_lpips=True)
+
+        return (target_features - coarse_features).square().mean() + \
+               (target_features - refineds_features).square().mean()
