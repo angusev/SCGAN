@@ -65,7 +65,10 @@ class DeepFillV2(pl.LightningModule):
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         coarse_image, refined_image = self.net_G(generator_input)
-        reconstruction_loss = args.l1_weight * self.recon_loss(image, coarse_image, refined_image, mask)
+        reconstruction_loss = args.l1_weight * self.recon_loss(image,
+                                                               coarse_image,
+                                                               refined_image,
+                                                               mask)
         if args.vgg_weight > 0:
             vgg_loss = args.vgg_weight * self.vgg_loss(image, coarse_image, refined_image, mask)
         else:
@@ -254,7 +257,7 @@ if __name__ == "__main__":
 
     trainer = Trainer(
         gpus=-1,
-        # precision=16,
+        precision=16,
         logger=logger,
         check_val_every_n_epoch=2,
     )
