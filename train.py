@@ -41,7 +41,8 @@ class DeepFillV2(pl.LightningModule):
         self.recon_loss = ReconstructionLoss(
             args.l1_c_h, args.l1_c_nh, args.l1_r_h, args.l1_r_nh
         )
-        self.vgg_loss = PerceptionLoss()
+        if args.vgg_weight > 0:
+            self.vgg_loss = PerceptionLoss()
         self.refined_as_discriminator_input = args.refined_as_discriminator_input
         # self.visualization_dataloader = self.setup_dataloader_for_visualizations()
 
@@ -65,7 +66,10 @@ class DeepFillV2(pl.LightningModule):
         )
         coarse_image, refined_image = self.net_G(generator_input)
         reconstruction_loss = args.l1_weight * self.recon_loss(image, coarse_image, refined_image, mask)
-        vgg_loss = args.vgg_weight * self.vgg_loss(image, coarse_image, refined_image, mask)
+        if args.vgg_weight > 0:
+            vgg_loss = args.vgg_weight * self.vgg_loss(image, coarse_image, refined_image, mask)
+        else:
+            vgg_loss = 0.0
 
         if not self.hparams.l1_only:
             discriminator_input_real = torch.cat(
