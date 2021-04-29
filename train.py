@@ -249,12 +249,12 @@ if __name__ == "__main__":
         "/datadrive/mrartemev/data/Students/Andrey/CelebAMask-HQ/",
         dry_try=args.dry_try,
         sc_only=args.sc_only,
+        batch_size=args.batch_size,
     )
 
     trainer = Trainer(
         gpus=-1,
         precision=16,
-        batch_size=args.batch_size,
         logger=logger,
         check_val_every_n_epoch=2,
     )
