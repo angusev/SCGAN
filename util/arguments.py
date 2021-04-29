@@ -83,7 +83,7 @@ def parse_arguments():
     )
 
     # other
-    parser.add_argument("--batch_size", type=int, default=4, help="batch size")
+    parser.add_argument("--batch_size", type=int, default=8, help="batch size")
     parser.add_argument(
         "--input_nc", type=int, default=10, help="number of input channels + mask"
     )
