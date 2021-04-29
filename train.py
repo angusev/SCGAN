@@ -62,8 +62,6 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
-        print("image", image.min(), image.max())
-
         generator_input = torch.cat(
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
@@ -192,7 +190,7 @@ class DeepFillV2(pl.LightningModule):
         )
 
     def visualize_batch(self, batch, stage):
-        torgb = ToNumpyRGB256(-1, 1)
+        torgb = ToNumpyRGB256(-1., 1.)
         (
             masked_image,
             masked_sketch,
@@ -202,7 +200,11 @@ class DeepFillV2(pl.LightningModule):
             completed_image,
         ) = self.generate_images(batch)
         for j in range(min(4, batch["image"].size(0))):
-            print("torgb(masked_image[j])", torgb(masked_image[j]).min(), torgb(masked_image[j]).max())
+            print(
+                "torgb(masked_image[j])",
+                torgb(masked_image[j]).min(),
+                torgb(masked_image[j]).max()
+            )
             visualization = np.hstack(
                 [
                     torgb(masked_image[j]),
