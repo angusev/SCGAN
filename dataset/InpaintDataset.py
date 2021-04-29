@@ -73,10 +73,6 @@ class SCDataset(Dataset):
         colormap = (cv2.imread(pathes["colormap"], -1) / 255 - 0.5) * 2
         sketch = cv2.imread(pathes["sketch"], -1)
 
-        image = image.astype(np.float16)
-        colormap = colormap.astype(np.float16)
-        sketch = sketch.astype(np.float16)
-
         assert image is not None
         assert colormap is not None, f"{pathes['colormap']} does't exist"
         assert sketch is not None

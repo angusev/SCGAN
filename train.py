@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
     trainer = Trainer(
         gpus=-1,
-        precision=32,
+        precision=16,
         logger=logger,
         check_val_every_n_epoch=2,
     )
