@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 import sys
-sys.path.insert(0, "./")
+sys.path.insert(0, "./dnnlib")
 import dnnlib.util
 
 
