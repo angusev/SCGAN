@@ -58,6 +58,7 @@ class PerceptionLoss(torch.nn.Module):
     VGG16
     """
     def __init__(self):
+        super(PerceptionLoss, self).__init__()
         # url = "https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytуorch/pretrained/metrics/vgg16.pt"
         # with dnnlib.util.open_url(url) as f:
         with open('util/vgg16.pt', 'rb') as f:
