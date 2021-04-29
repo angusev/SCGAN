@@ -65,10 +65,10 @@ class PerceptionLoss(torch.nn.Module):
             self.vgg16 = torch.jit.load(f).eval()
     
     def forward(self, images, coarses, refineds, masks):
-        if images.shape[2] > 256:
-            images = F.interpolate(images.copy(), size=(256, 256), mode="area")
-            coarses = F.interpolate(coarses.copy(), size=(256, 256), mode="area")
-            refineds = F.interpolate(refineds.copy(), size=(256, 256), mode="area")
+        # if images.shape[2] > 256:
+        #     images = F.interpolate(images.copy(), size=(256, 256), mode="area")
+        #     coarses = F.interpolate(coarses.copy(), size=(256, 256), mode="area")
+        #     refineds = F.interpolate(refineds.copy(), size=(256, 256), mode="area")
         target_features = self.vgg16(images, resize_images=False, return_lpips=True)
         coarse_features = self.vgg16(coarses, resize_images=False, return_lpips=True)
         refineds_features = self.vgg16(refineds, resize_images=False, return_lpips=True)
