@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-import dnnlib
+import dnnlib.util
 
 
 class ReconstructionLoss(torch.nn.Module):
