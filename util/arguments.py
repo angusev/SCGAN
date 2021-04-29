@@ -102,6 +102,8 @@ def parse_arguments():
     parser.add_argument("--load_G", type=str, default=None)
     parser.add_argument("--load_D", type=str, default=None)
 
+    parser.add_argument("--fp16", action=store_true)
+
     parser.add_argument(
         "--l1_weight",
         type=float,
