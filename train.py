@@ -23,7 +23,7 @@ from dataset.InpaintDataset import SCDataModule
 
 
 torch.backends.cudnn.benchmark = True
-torch.autograd.set_detect_anomaly(True)
+# torch.autograd.set_detect_anomaly(True)
 
 
 class DeepFillV2(pl.LightningModule):
