@@ -62,6 +62,8 @@ class DeepFillV2(pl.LightningModule):
             batch["mask"],
         )
 
+        print("image", image.min(), image.max())
+
         generator_input = torch.cat(
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
