@@ -25,6 +25,11 @@ if __name__ == "__main__":
     torgb = ToNumpyRGB256(-1., 1.)
 
     imgpath = args.data / "images_256"
+    collpath = args.data / 'collages'
+    respath = args.data / 'results'
+
+    collpath.mkdir(exist_ok=True)
+    respath.mkdir(exist_ok=True)
     files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
 
     dataset = SCDataset(args.data, files)
@@ -56,5 +61,5 @@ if __name__ == "__main__":
             torgb(image.squeeze().detach().cpu().numpy()),
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
-        image_fromarray.save(args.data / 'collages' / (files[i] + '.png'))
-        cv2.write(str(args.data / 'results' / (files[i] + '.png')), visualization[2])
+        image_fromarray.save(collpath / (files[i] + '.png'))
+        cv2.write(str(respath / (files[i] + '.png')), visualization[2])
