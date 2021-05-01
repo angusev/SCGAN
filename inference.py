@@ -56,5 +56,5 @@ if __name__ == "__main__":
             torgb(image.squeeze().detach().cpu().numpy()),
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
-        image_fromarray.save(args.data / 'collages' / files[i])
-        cv2.write(str(args.data / 'results' / files[i]), visualization[2])
+        image_fromarray.save(args.data / 'collages' / files[i].with_suffix('.png'))
+        cv2.write(str(args.data / 'results' / files[i].with_suffix('.png')), visualization[2])
