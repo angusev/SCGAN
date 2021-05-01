@@ -22,10 +22,10 @@ if __name__ == "__main__":
     net_G.load_state_dict(torch.load(args.load_G))
     torgb = ToNumpyRGB256(-1., 1.)
 
-    imgpath = args.data_dir / "images_256"
+    imgpath = args.data / "images_256"
     files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
 
-    dataset = SCDataset(args.data_dir, files)
+    dataset = SCDataset(args.data, files)
     for i, item in enumerate(tqdm(dataset)):
         item = item.cuda()
         image, colormap, sketch, mask = (
@@ -55,5 +55,5 @@ if __name__ == "__main__":
             torgb(image.squeeze().cpu().numpy()),
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
-        image_fromarray.save(args.data_dir / 'collages' / files[i])
-        cv2.write(str(args.data_dir / 'results' / files[i]), visualization[2])
+        image_fromarray.save(args.data / 'collages' / files[i])
+        cv2.write(str(args.data / 'results' / files[i]), visualization[2])
