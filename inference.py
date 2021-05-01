@@ -49,11 +49,11 @@ if __name__ == "__main__":
         masked_colormap = colormap * (1 - mask)
 
         visualization = [
-            torgb(masked_image.squeeze().cpu().numpy()),
-            torgb(masked_sketch.squeeze().cpu().numpy()),
-            torgb(masked_colormap.squeeze().cpu().numpy()),
-            torgb(completed_image.squeeze().cpu().numpy()),
-            torgb(image.squeeze().cpu().numpy()),
+            torgb(masked_image.squeeze().detach().cpu().numpy()),
+            torgb(masked_sketch.squeeze().detach().cpu().numpy()),
+            torgb(masked_colormap.squeeze().detach().cpu().numpy()),
+            torgb(completed_image.squeeze().detach().cpu().numpy()),
+            torgb(image.squeeze().detach().cpu().numpy()),
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
         image_fromarray.save(args.data / 'collages' / files[i])
