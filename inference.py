@@ -17,6 +17,7 @@ torch.backends.cudnn.benchmark = True
 
 if __name__ == "__main__":
     args = arguments.parse_arguments()
+    args.data = Path(args.data)
 
     net_G = get_generator(args)
     net_G.load_state_dict(torch.load(args.load_G))
