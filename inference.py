@@ -62,4 +62,4 @@ if __name__ == "__main__":
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
         image_fromarray.save(collpath / (files[i] + '.png'))
-        cv2.write(str(respath / (files[i] + '.png')), visualization[2])
+        cv2.imwrite(str(respath / (files[i] + '.png')), visualization[2])
