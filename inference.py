@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
     net_G = get_generator(args)
     net_G.load_state_dict(torch.load(args.load_G))
+    net_G = net_G.cuda().eval()
     torgb = ToNumpyRGB256(-1., 1.)
 
     imgpath = args.data / "images_256"
