@@ -80,9 +80,11 @@ class SCDataset(Dataset):
         if self.sc_only:
             mask = np.zeros_like(image[:, :, 0])
         elif pathes['mask'].is_file():
-            mask = (cv2.imread(str(pathes['mask']), -1) / 255)[:, :, None]
+            mask = (cv2.imread(str(pathes['mask']), -1) / 255)[:, :, None].astype(np.float32)
         else:
             mask = self.user_simulator(image)
+
+        print('mask', mask.shape)
 
         return dict(
             image=self.transform(image).float(),
