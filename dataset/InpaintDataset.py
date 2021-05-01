@@ -80,7 +80,7 @@ class SCDataset(Dataset):
         if self.sc_only:
             mask = np.zeros_like(image[:, :, 0])
         elif pathes['mask'].is_file():
-            mask = cv2.imread(str(pathes['mask'].is_file()), -1) / 255
+            mask = cv2.imread(str(pathes['mask']), -1) / 255
         else:
             mask = self.user_simulator(image)
 
