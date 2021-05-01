@@ -28,12 +28,11 @@ if __name__ == "__main__":
 
     dataset = SCDataset(args.data, files)
     for i, item in enumerate(tqdm(dataset)):
-        item = item.cuda()
         image, colormap, sketch, mask = (
-            item["image"].unsqueeze(0),
-            item["colormap"].unsqueeze(0),
-            item["sketch"].unsqueeze(0),
-            item["mask"].unsqueeze(0),
+            item["image"].unsqueeze(0).cuda(),
+            item["colormap"].unsqueeze(0).cuda(),
+            item["sketch"].unsqueeze(0).cuda(),
+            item["mask"].unsqueeze(0).cuda(),
         )
 
         generator_input = torch.cat(
