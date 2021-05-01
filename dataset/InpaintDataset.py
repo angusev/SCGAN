@@ -67,6 +67,7 @@ class SCDataset(Dataset):
             "sketch": str(
                 self._data_root / "sketches_masked_256" / (self._files[index] + ".jpg")
             ),
+            "mask": self._data_root / "masks_256" / (self._files[index] + ".png")
         }
 
         image = (cv2.imread(pathes["image"], -1) / 255 - 0.5) * 2
@@ -78,6 +79,8 @@ class SCDataset(Dataset):
         assert sketch is not None
         if self.sc_only:
             mask = np.zeros_like(image[:, :, 0])
+        elif pathes['mask'].is_file():
+            mask = cv2.imread(str(pathes['mask'].is_file()), -1) / 255
         else:
             mask = self.user_simulator(image)
 
