@@ -14,7 +14,6 @@ def my_convT(
     padding_mode="zeros",
 ):
     return torch.nn.Sequential(
-        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
         torch.nn.Conv2d(
             in_channels,
             out_channels,
@@ -26,6 +25,7 @@ def my_convT(
             bias,
             padding_mode,
         ),
+        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
     )
 
 
@@ -119,21 +119,21 @@ class UNetSkipConnectionBlock(torch.nn.Module):
         upnorm = norm_layer(outer_nc)
 
         if outermost:
-            upconv = torch.nn.ConvTranspose2d(
+            upconv = my_convT(
                 inner_nc * 2, outer_nc, kernel_size=4, stride=2, padding=1
             )
             down = [downconv]
             up = [uprelu, upconv, torch.nn.Tanh()]
             model = down + [submodule] + up
         elif innermost:
-            upconv = torch.nn.ConvTranspose2d(
+            upconv = my_convT(
                 inner_nc, outer_nc, kernel_size=4, stride=2, padding=1, bias=use_bias
             )
             down = [downrelu, downconv]
             up = [uprelu, upconv, upnorm]
             model = down + up
         else:
-            upconv = torch.nn.ConvTranspose2d(
+            upconv = my_convT(
                 inner_nc * 2,
                 outer_nc,
                 kernel_size=4,
