@@ -20,7 +20,7 @@ def my_convT(
             out_channels,
             kernel_size,
             stride=1,
-            padding=padding,
+            padding=padding + 1,
             groups=groups,
             bias=bias,
             dilation=dilation,
