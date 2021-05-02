@@ -21,7 +21,6 @@ def my_convT(
             kernel_size,
             stride=1,
             padding=padding,
-            output_padding=output_padding,
             groups=groups,
             bias=bias,
             dilation=dilation,
