@@ -14,18 +14,19 @@ def my_convT(
     padding_mode="zeros",
 ):
     return torch.nn.Sequential(
+        torch.nn.Upsample(scale_factor=stride, mode="bilinear"),
         torch.nn.Conv2d(
             in_channels,
             out_channels,
             kernel_size,
-            stride,
-            padding,
-            dilation,
-            groups,
-            bias,
-            padding_mode,
+            stride=1,
+            padding=padding,
+            output_padding=output_padding,
+            groups=groups,
+            bias=bias,
+            dilation=dilation,
+            padding_mode=padding_mode,
         ),
-        torch.nn.Upsample(scale_factor=2, mode="bilinear"),
     )
 
 

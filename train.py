@@ -66,12 +66,13 @@ class DeepFillV2(pl.LightningModule):
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         coarse_image, refined_image = self.net_G(generator_input)
-        reconstruction_loss = args.l1_weight * self.recon_loss(image,
-                                                               coarse_image,
-                                                               refined_image,
-                                                               mask)
+        reconstruction_loss = args.l1_weight * self.recon_loss(
+            image, coarse_image, refined_image, mask
+        )
         if args.vgg_weight > 0:
-            vgg_loss = args.vgg_weight * self.vgg_loss(image, coarse_image, refined_image, mask)
+            vgg_loss = args.vgg_weight * self.vgg_loss(
+                image, coarse_image, refined_image, mask
+            )
         else:
             vgg_loss = 0.0
 
@@ -190,7 +191,7 @@ class DeepFillV2(pl.LightningModule):
         )
 
     def visualize_batch(self, batch, stage):
-        torgb = ToNumpyRGB256(-1., 1.)
+        torgb = ToNumpyRGB256(-1.0, 1.0)
         (
             masked_image,
             masked_sketch,

@@ -22,11 +22,11 @@ if __name__ == "__main__":
     net_G = get_generator(args)
     net_G.load_state_dict(torch.load(args.load_G))
     net_G = net_G.cuda().eval()
-    torgb = ToNumpyRGB256(-1., 1.)
+    torgb = ToNumpyRGB256(-1.0, 1.0)
 
     imgpath = args.data / "images_256"
-    collpath = args.data / 'collages'
-    respath = args.data / 'results'
+    collpath = args.data / "collages"
+    respath = args.data / "results"
 
     collpath.mkdir(exist_ok=True)
     respath.mkdir(exist_ok=True)
@@ -45,9 +45,7 @@ if __name__ == "__main__":
             (image * mask, colormap * (1 - mask), sketch * (1 - mask), mask), dim=1
         )
         coarse_image, refined_image = net_G(generator_input)
-        completed_image = (
-            (refined_image * (1 - mask) + image * mask)
-        )
+        completed_image = refined_image * (1 - mask) + image * mask
 
         masked_image = image * mask
         masked_sketch = sketch * (1 - mask)
@@ -61,5 +59,5 @@ if __name__ == "__main__":
             torgb(image.squeeze().detach().cpu().numpy()),
         ]
         image_fromarray = Image.fromarray(np.hstack(visualization)[:, :, [2, 1, 0]])
-        image_fromarray.save(collpath / (files[i] + '.png'))
-        cv2.imwrite(str(respath / (files[i] + '.png')), visualization[-2])
+        image_fromarray.save(collpath / (files[i] + ".png"))
+        cv2.imwrite(str(respath / (files[i] + ".png")), visualization[-2])

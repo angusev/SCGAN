@@ -5,9 +5,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     # dataset
-    parser.add_argument(
-        "--data", type=str, help="dataset path"
-    )
+    parser.add_argument("--data", type=str, help="dataset path")
     parser.add_argument("--num_workers", type=int, default=2, help="num workers")
     parser.add_argument("--image_size", type=int, default=256, help="input image size")
     parser.add_argument("--bbox_shape", type=int, default=48, help="random box size")
@@ -102,7 +100,7 @@ def parse_arguments():
     parser.add_argument("--load_G", type=str, default=None)
     parser.add_argument("--load_D", type=str, default=None)
 
-    parser.add_argument("--fp16", action='store_true')
+    parser.add_argument("--fp16", action="store_true")
 
     parser.add_argument(
         "--l1_weight",
