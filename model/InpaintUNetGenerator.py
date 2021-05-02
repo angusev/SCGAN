@@ -85,7 +85,8 @@ class InpaintUNetGenerator(torch.nn.Module):
 
     def forward(self, concatenated_input):
         """Standard forward"""
-        output = self.model(concatenated_input)
+        side = concatenated_input.size(2)
+        output = self.model(concatenated_input)[:, :, :side, :side]
         return output, output
 
 
@@ -153,6 +154,6 @@ class UNetSkipConnectionBlock(torch.nn.Module):
 
     def forward(self, x):
         if self.outermost:
-            return self.model(x)[:, :, :x.size(2) * 2, :x.size(3) * 2]
+            return self.model(x)
         else:  # add skip connections
             return torch.cat([x, self.model(x)], 1)
