@@ -262,6 +262,7 @@ if __name__ == "__main__":
         precision=16 if args.fp16 else 32,
         logger=logger,
         check_val_every_n_epoch=2,
+        profiler="simple",
     )
 
     trainer.fit(model, train_loader)
