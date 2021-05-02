@@ -155,9 +155,6 @@ class UNetSkipConnectionBlock(torch.nn.Module):
         if self.outermost:
             return self.model(x)
         else:  # add skip connections
-            try:
-                return torch.cat([x, self.model(x)], 1)
-            except:
-                print("x", x.shape)
-                print("self.model", self.model(x).shape)
-                raise
+            print("x", x.shape)
+            print("self.model", self.model(x).shape, flush=True)
+            return torch.cat([x, self.model(x)], 1)
