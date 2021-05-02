@@ -110,6 +110,6 @@ def parse_arguments():
     parser.add_argument(
         "--vgg_weight",
         type=float,
-        default=1.0,
+        default=0.5,
     )
     return parser.parse_args()

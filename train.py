@@ -35,9 +35,9 @@ class DeepFillV2(pl.LightningModule):
         self.net_D = InpaintSADiscriminator(args.input_nc)
 
         if args.load_G:
-            self.net_G.load_state_dict(torch.load(args.load_G))
+            self.net_G.load_state_dict(torch.load(args.load_G), strict=False)
         if args.load_D:
-            self.net_D.load_state_dict(torch.load(args.load_D))
+            self.net_D.load_state_dict(torch.load(args.load_D), strict=False)
 
         self.recon_loss = ReconstructionLoss(
             args.l1_c_h, args.l1_c_nh, args.l1_r_h, args.l1_r_nh
