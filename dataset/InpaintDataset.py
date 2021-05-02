@@ -84,8 +84,6 @@ class SCDataset(Dataset):
         else:
             mask = self.user_simulator(image)
 
-        print('mask', mask.shape)
-
         return dict(
             image=self.transform(image).float(),
             colormap=self.transform(colormap).float(),
