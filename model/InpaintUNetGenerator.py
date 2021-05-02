@@ -30,6 +30,7 @@ def my_convT(
 
 
 # torch.nn.ConvTranspose2d = my_convT
+my_convT = torch.nn.ConvTranspose2d
 
 
 class InpaintUNetGenerator(torch.nn.Module):
