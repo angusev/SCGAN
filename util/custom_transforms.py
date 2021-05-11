@@ -15,8 +15,8 @@ class UserSimulator(object):
         self.imshape = np.array([self.imsize, self.imsize])
 
         self.start_coords = np.array(
-            [[np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples)],
-             [np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples)]]
+            [np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples),
+             np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples)]
         ).T
         self.start_angles = np.random.uniform(2 * np.pi, size=self.numsamples)
         self.numVs = np.random.randint(self.maxLinesNumber, size=self.numsamples)
