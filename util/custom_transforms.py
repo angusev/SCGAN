@@ -12,7 +12,6 @@ class UserSimulator(object):
         self.seed = 0
 
     def __call__(self, img):
-        print("usersimulator called")
         mask = np.full((img.shape[0], img.shape[1], 1), 0.0)
         self.maxLength = mask.shape[0] / 4
 
@@ -44,6 +43,7 @@ class UserSimulator(object):
                     thickness=mask.shape[0] // 40,
                 )
                 start_coord = end_coord.copy()
+        print("usersimulator called", start_coord, end_coord, length)
         return (mask == 0).astype(np.float32)
 
 
