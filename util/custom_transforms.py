@@ -28,6 +28,7 @@ class UserSimulator(object):
         mask = np.full((self.imsize, self.imsize, 1), 0.0)
 
         for i in range(self.clusters):
+            print(self.start_coords.shape)
             start_coord = self.start_coords[self.seed]
             end_coord = np.zeros_like(start_coord)
             startAngle = self.start_angles[self.seed]
