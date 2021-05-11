@@ -90,7 +90,7 @@ class DeepFillV2(pl.LightningModule):
 
         if optimizer_idx == 0:
             # generator training
-            if batch_idx == 0 or True:
+            if batch_idx == 0:
                 self.visualize_batch(batch, batch_idx, "train")
 
             gen_loss = (
@@ -144,7 +144,7 @@ class DeepFillV2(pl.LightningModule):
         coarse_image, refined_image = self.net_G(generator_input)
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
-        if batch_idx == 0 and False:
+        if batch_idx == 0:
             self.visualize_batch(batch, batch_idx, "valid")
         return {
             "test_loss": torch.FloatTensor(
