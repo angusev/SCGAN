@@ -11,7 +11,7 @@ class UserSimulator(object):
         self.angleScale = np.pi / 20
 
     def __call__(self, img):
-        np.random.seed(None)
+        np.random.seed(0)
         mask = np.full((img.shape[0], img.shape[1], 1), 0.0)
         self.maxLength = mask.shape[0] / 4
 
