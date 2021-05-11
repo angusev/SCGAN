@@ -6,7 +6,7 @@ def parse_arguments():
 
     # dataset
     parser.add_argument("--data", type=str, help="dataset path")
-    parser.add_argument("--num_workers", type=int, default=2, help="num workers")
+    parser.add_argument("--num_workers", type=int, default=3, help="num workers")
     parser.add_argument("--image_size", type=int, default=256, help="input image size")
     parser.add_argument("--bbox_shape", type=int, default=48, help="random box size")
     parser.add_argument(

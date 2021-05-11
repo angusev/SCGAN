@@ -256,7 +256,7 @@ if __name__ == "__main__":
         dry_try=args.dry_try,
         sc_only=args.sc_only,
         batch_size=args.batch_size,
-        workers=args.num_workers
+        num_workers=args.num_workers
     )
 
     trainer = Trainer(
