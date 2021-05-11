@@ -26,7 +26,7 @@ class UserSimulator(object):
 
     def __call__(self):
         mask = np.full((self.imsize, self.imsize, 1), 0.0)
-        print("self.seed", self.seed, self.start_coords[self.seed], self.lengths[self.seed])
+        # print("self.seed", self.seed, self.start_coords[self.seed], self.lengths[self.seed])
         for i in range(self.clusters):
             start_coord = self.start_coords[self.seed]
             end_coord = np.zeros_like(start_coord)
