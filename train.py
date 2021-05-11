@@ -22,6 +22,7 @@ from PIL import Image
 from dataset.InpaintDataset import SCDataModule
 
 
+pytorch_lightning.utilities.seed.seed_everything(None)
 torch.backends.cudnn.benchmark = True
 # torch.autograd.set_detect_anomaly(True)
 
