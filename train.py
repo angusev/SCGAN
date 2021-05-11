@@ -263,6 +263,7 @@ if __name__ == "__main__":
         logger=logger,
         check_val_every_n_epoch=2,
         profiler="simple",
+        deterministic=False,
     )
 
     trainer.fit(model, train_loader)
