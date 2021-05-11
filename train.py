@@ -89,8 +89,8 @@ class DeepFillV2(pl.LightningModule):
 
         if optimizer_idx == 0:
             # generator training
-            if batch_idx == 0:
-                self.visualize_batch(batch, "train")
+            if batch_idx == 0 or batch_idx == 1:
+                self.visualize_batch(batch, batch_idx, "train")
 
             gen_loss = (
                 -self.hparams.gen_loss_alpha * torch.mean(d_fake)
@@ -143,8 +143,8 @@ class DeepFillV2(pl.LightningModule):
         coarse_image, refined_image = self.net_G(generator_input)
 
         reconstruction_loss = self.recon_loss(image, coarse_image, refined_image, mask)
-        if batch_idx == 0:
-            self.visualize_batch(batch, "valid")
+        if batch_idx == 0 or batch_idx == 1:
+            self.visualize_batch(batch, batch_idx, "valid")
         return {
             "test_loss": torch.FloatTensor(
                 [
@@ -190,7 +190,7 @@ class DeepFillV2(pl.LightningModule):
             completed_image,
         )
 
-    def visualize_batch(self, batch, stage):
+    def visualize_batch(self, batch, batch_idx, stage):
         torgb = ToNumpyRGB256(-1.0, 1.0)
         (
             masked_image,
@@ -200,7 +200,7 @@ class DeepFillV2(pl.LightningModule):
             refined_image,
             completed_image,
         ) = self.generate_images(batch)
-        for j in range(min(8, batch["image"].size(0))):
+        for j in range(min(4, batch["image"].size(0))):
             visualization = np.hstack(
                 [
                     torgb(masked_image[j]),
@@ -223,7 +223,7 @@ class DeepFillV2(pl.LightningModule):
             #     )
             # )
             self.logger.experiment.log_image(
-                image_fromarray, name=f"{stage}_epoch{self.current_epoch}_{j}"
+                image_fromarray, name=f"{stage}_epoch{self.current_epoch}_{batch_idx}_{j}"
             )
 
     def validation_epoch_end(self, _):
