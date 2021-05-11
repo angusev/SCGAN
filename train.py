@@ -200,7 +200,7 @@ class DeepFillV2(pl.LightningModule):
             refined_image,
             completed_image,
         ) = self.generate_images(batch)
-        for j in range(min(4, batch["image"].size(0))):
+        for j in range(min(8, batch["image"].size(0))):
             visualization = np.hstack(
                 [
                     torgb(masked_image[j]),
