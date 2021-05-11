@@ -84,7 +84,7 @@ class SCDataset(Dataset):
                 np.float32
             )
         else:
-            mask = self.user_simulator(image)
+            mask = self.user_simulator()
 
         return dict(
             image=self.transform(image).float(),
