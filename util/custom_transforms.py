@@ -10,7 +10,7 @@ class UserSimulator(object):
         self.seed_number = 0
         self.imsize = imsize
 
-        self.numsamples = 1e6
+        self.numsamples = 100_000
         self.imshape = np.array([self.imsize, self.imsize])
 
         self.start_coords = np.random.normal(
