@@ -4,6 +4,8 @@ import numpy as np
 from torchvision import transforms
 
 
+np.random.seed(seed=None)
+
 class UserSimulator(object):
     def __init__(self, clusters=10, maxLinesNumber=50):
         self.clusters = clusters
