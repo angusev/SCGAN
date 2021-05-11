@@ -9,8 +9,11 @@ class UserSimulator(object):
         self.clusters = clusters
         self.maxLinesNumber = maxLinesNumber
         self.angleScale = np.pi / 20
+        self.seed = 0
 
     def __call__(self, img):
+        np.random.seed(self.seed)
+        self.seed += 1
         mask = np.full((img.shape[0], img.shape[1], 1), 0.0)
         self.maxLength = mask.shape[0] / 4
 
