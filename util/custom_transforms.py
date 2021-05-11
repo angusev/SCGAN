@@ -9,6 +9,7 @@ class UserSimulator(object):
         self.angleScale = np.pi / 20
         self.seed_number = 0
         self.imsize = imsize
+        self.maxLength = self.imsize / 4
 
         self.numsamples = 100000
         self.imshape = np.array([self.imsize, self.imsize])
@@ -25,7 +26,6 @@ class UserSimulator(object):
 
     def __call__(self):
         mask = np.full((self.imsize, self.imsize, 1), 0.0)
-        self.maxLength = self.imsize / 4
 
         for i in range(self.clusters):
             start_coord = self.start_coords[self.seed]
