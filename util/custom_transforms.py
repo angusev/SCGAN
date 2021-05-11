@@ -4,8 +4,6 @@ import numpy as np
 from torchvision import transforms
 
 
-np.random.seed(seed=None)
-
 class UserSimulator(object):
     def __init__(self, clusters=10, maxLinesNumber=50):
         self.clusters = clusters
@@ -13,6 +11,7 @@ class UserSimulator(object):
         self.angleScale = np.pi / 20
 
     def __call__(self, img):
+        np.random.seed(None)
         mask = np.full((img.shape[0], img.shape[1], 1), 0.0)
         self.maxLength = mask.shape[0] / 4
 
