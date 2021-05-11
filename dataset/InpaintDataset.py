@@ -113,14 +113,6 @@ class SCDataModule(pl.LightningDataModule):
         self.dry_try = dry_try
         self.sc_only = sc_only
 
-        self.transform = transforms.Compose([transforms.ToTensor()])
-
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
-        # self.dims = (1, 28, 28)
-        # self.num_classes = 10
-
     def setup(self, stage=None):
         imgpath = self.data_dir / "images_256"
         files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]

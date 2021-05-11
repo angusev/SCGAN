@@ -1,7 +1,5 @@
-import torch
 import cv2
 import numpy as np
-from torchvision import transforms
 
 
 class UserSimulator(object):
@@ -45,9 +43,3 @@ class UserSimulator(object):
                 start_coord = end_coord.copy()
         print("usersimulator called", start_coord, end_coord, length)
         return (mask == 0).astype(np.float32)
-
-
-if __name__ == "__main__":
-    img = cv2.imread("./CelebAMask-HQ/imgs/120.jpg")
-    tr = transforms.Compose([UserSimulator()])
-    cv2.imwrite("./tmp.png", tr(img))
