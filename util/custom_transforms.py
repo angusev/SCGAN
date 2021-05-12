@@ -18,6 +18,7 @@ class UserSimulator(object):
             [np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples),
              np.random.normal(self.imsize / 2, self.imsize / 4, self.numsamples)]
         ).T
+    
         self.start_angles = np.random.uniform(2 * np.pi, size=self.numsamples)
         self.numVs = np.random.randint(self.maxLinesNumber, size=self.numsamples)
         self.lengths = np.random.uniform(self.maxLength, size=self.numsamples)
@@ -26,7 +27,7 @@ class UserSimulator(object):
 
     def __call__(self):
         mask = np.full((self.imsize, self.imsize, 1), 0.0)
-        # print("self.seed", self.seed, self.start_coords[self.seed], self.lengths[self.seed])
+
         for i in range(self.clusters):
             start_coord = self.start_coords[self.seed]
             end_coord = np.zeros_like(start_coord)
