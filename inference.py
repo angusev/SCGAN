@@ -30,7 +30,9 @@ if __name__ == "__main__":
 
     collpath.mkdir(exist_ok=True)
     respath.mkdir(exist_ok=True)
-    files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
+    # files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
+
+    files = ["100"]
 
     dataset = SCDataset(args.data, files)
     for i, item in enumerate(tqdm(dataset)):
