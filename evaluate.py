@@ -31,9 +31,9 @@ if __name__ == "__main__":
 
     collpath.mkdir(exist_ok=True)
     respath.mkdir(exist_ok=True)
-    # files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
+    files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))]
 
-    files = ["100"]
+    # files = ["100"]
 
     dataset = SCDataset(args.data, files)
 
@@ -60,5 +60,5 @@ if __name__ == "__main__":
         psnr += (P(*metrics_input) / n_elems).item()
         # ssim += (S(*metrics_input) / n_elems).item()
 
-    print("PSNR:", psnr)
+    print("PSNR:", np.round(psnr, 4))
     print("SSIM:", ssim)
