@@ -37,8 +37,10 @@ if __name__ == "__main__":
 
     psnr = 0.0
     ssim = 0.0
+    l2 = 0.0
     P = PSNR()
     S = SSIM()
+    L = torch.nn.MSELoss()
     n_elems = len(dataset)
     for i, item in enumerate(tqdm(dataset)):
         image, colormap, sketch, mask = (
@@ -57,6 +59,7 @@ if __name__ == "__main__":
         metrics_input = (completed_image.squeeze() + 1) * 255 / 2, (image.squeeze() + 1) * 255 / 2
         psnr += (P(*metrics_input) / n_elems).item()
         ssim += (S(*metrics_input) / n_elems).item()
+        l2 += L(completed_image, image) / n_elems / 2
 
     print("PSNR:", np.round(psnr, 4))
     print("SSIM:", ssim)
