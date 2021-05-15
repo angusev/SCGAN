@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
         metrics_input = (completed_image.squeeze() + 1) * 255 / 2, (image.squeeze() + 1) * 255 / 2
         psnr += (P(*metrics_input) / n_elems).item()
-        ssim += (S(*metrics_input) / n_elems).item()
+        # ssim += (S(*metrics_input) / n_elems).item()
 
     print("PSNR:", psnr)
     print("SSIM:", ssim)
