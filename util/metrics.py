@@ -38,7 +38,7 @@ class SSIM:
             if img1.shape[2] == 3:
                 ssims = []
                 for i in range(3):
-                    ssims.append(_ssim(img1, img2))
+                    ssims.append(self._ssim(img1, img2))
                 return np.array(ssims).mean()
             elif img1.shape[2] == 1:
                 return self._ssim(np.squeeze(img1), np.squeeze(img2))
