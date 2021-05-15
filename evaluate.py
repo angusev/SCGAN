@@ -12,7 +12,7 @@ from util import arguments
 from util.transforms import ToNumpyRGB256
 from dataset.InpaintDataset import SCDataset
 
-from metrics import PSNR, SSIM
+from util.metrics import PSNR, SSIM
 
 
 torch.backends.cudnn.benchmark = True
@@ -62,4 +62,4 @@ if __name__ == "__main__":
         ssim += S(*metrics_input) / n_elems
 
     print("PSNR:", psnr)
-    print("ssim:", psnr)
+    print("SSIM:", ssim)
