@@ -28,8 +28,8 @@ class SSIM:
 
     @staticmethod
     def __call__(img1, img2):
-        img1 = img1.detach().cpu().numpy()
-        img2 = img2.detach().cpu().numpy()
+        img1 = img1.permute(1, 2, 0).detach().cpu().numpy()
+        img2 = img2.permute(1, 2, 0).detach().cpu().numpy()
         if not img1.shape == img2.shape:
             raise ValueError("Input images must have the same dimensions.")
         if img1.ndim == 2:  # Grey or Y-channel image
