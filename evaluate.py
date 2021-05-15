@@ -24,7 +24,6 @@ if __name__ == "__main__":
     net_G = get_generator(args)
     net_G.load_state_dict(torch.load(args.load_G))
     net_G = net_G.cuda().eval()
-    torgb = ToNumpyRGB256(-1.0, 1.0)
 
     imgpath = args.data / "images_256"
     collpath = args.data / "collages"
@@ -57,9 +56,9 @@ if __name__ == "__main__":
         coarse_image, refined_image = net_G(generator_input)
         completed_image = refined_image * (1 - mask) + image * mask
 
-        metrics_input = torgb(completed_image.squeeze()), torgb(image.squeeze())
-        psnr += P(*metrics_input) / n_elems
-        ssim += S(*metrics_input) / n_elems
+        metrics_input = (completed_image.squeeze() + 1) * 255 / 2, (image.squeeze() + 1) * 255 / 2
+        psnr += (P(*metrics_input) / n_elems).item()
+        ssim += (S(*metrics_input) / n_elems).item()
 
     print("PSNR:", psnr)
     print("SSIM:", ssim)
