@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     collpath.mkdir(exist_ok=True)
     respath.mkdir(exist_ok=True)
-    files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))][::300]
+    files = [Path(f).stem for f in listdir(imgpath) if isfile(join(imgpath, f))][::50]
 
     dataset = SCDataset(args.data, files)
 
@@ -57,10 +57,10 @@ if __name__ == "__main__":
         completed_image = refined_image * (1 - mask) + image * mask
 
         metrics_input = (completed_image.squeeze() + 1) * 255 / 2, (image.squeeze() + 1) * 255 / 2
-        # psnr += (P(*metrics_input) / n_elems).item()
-        # ssim += (S(*metrics_input) / n_elems).item()
+        psnr += (P(*metrics_input) / n_elems).item()
+        ssim += (S(*metrics_input) / n_elems).item()
         l2 += L(completed_image, image).item() / n_elems / 2
 
     print("PSNR:", np.round(psnr, 4))
     print("SSIM:", np.round(ssim, 4))
-    print("L2:", np.round(l2, 4))
+    print("L2:", np.round(l2 * 100, 4))
