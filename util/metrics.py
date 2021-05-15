@@ -26,8 +26,7 @@ class SSIM:
     def __init__(self):
         self.name = "SSIM"
 
-    @staticmethod
-    def __call__(img1, img2):
+    def __call__(self, img1, img2):
         img1 = img1.permute(1, 2, 0).detach().cpu().numpy()
         img2 = img2.permute(1, 2, 0).detach().cpu().numpy()
         if not img1.shape == img2.shape:
