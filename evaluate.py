@@ -57,8 +57,8 @@ if __name__ == "__main__":
         completed_image = refined_image * (1 - mask) + image * mask
 
         metrics_input = (completed_image.squeeze() + 1) * 255 / 2, (image.squeeze() + 1) * 255 / 2
-        psnr += (P(*metrics_input) / n_elems).item()
-        ssim += (S(*metrics_input) / n_elems).item()
+        # psnr += (P(*metrics_input) / n_elems).item()
+        # ssim += (S(*metrics_input) / n_elems).item()
         l2 += L(completed_image, image) / n_elems / 2
 
     print("PSNR:", np.round(psnr, 4))
