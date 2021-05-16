@@ -1,8 +1,7 @@
-# DeepFillv2 Pytorch Lightning
+# Facial Features Manipulation Using Free-Form Input (PyTroch)
 
-Clean minimal implementation of  [<i> Free-Form Image Inpainting with Gated Convolutions </i>](http://jiahuiyu.com/deepfill2/) in pytorch lightning. Inspired from [pytorch implementation by @avalonstrel](https://github.com/avalonstrel/GatedConvolution_pytorch).
+![image info](./data/inference/collages/9.png)
 
-The models lack support for guidance masks, but can be very easily added. Instead of contexual attention, uses self attention GAN. The dataset class lacks support for generating freeform masks.
 
 ## Usage
 
@@ -21,6 +20,7 @@ usage: deepfillv2.py [-h] [--dataset DATASET] [--num_workers NUM_WORKERS]
                      [--batch_size BATCH_SIZE] [--input_nc INPUT_NC]
                      [--experiment EXPERIMENT]
                      [--visualization_set VISUALIZATION_SET]
+                     [--load_G LOAD_G] [--load_D LOAD_D]
 ```
 Arguments:
 
@@ -48,28 +48,10 @@ Arguments:
   --input_nc INPUT_NC                       number of input channels + mask
   --experiment EXPERIMENT                   experiment directory
   --visualization_set VISUALIZATION_SET     validation samples to be visualized
+  --load_G LOAD_G                           path to pretrained generator's weights
+  --load_D LOAD_D                           path to pretrained discriminator's weights
 ```
 
 The defaults should give reasonable performance in most cases.
 
-## Data
 
-The datasets must be placed in the the following structure
-
-```bash
-├── dataset-name
-    ├── images
-        # all the rgb images
-    ├── split
-        ├── train.txt
-        ├── val.txt 
-        ├── test.txt
-        ├── vis_0.txt
-        # names of images without extension
-```
-
-For an example see the `matterport` folder in `data` directory.
-
-## Acknowledgements
-
-[Official repository](http://jiahuiyu.com/deepfill2/) for DeepFillv2 and [pytorch implementation](https://github.com/avalonstrel/GatedConvolution_pytorch) by @avalonstrel.
