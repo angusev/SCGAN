@@ -2,7 +2,7 @@
 
 ![image info](./data/inference/collages/9.png)
 
-The developed model creates a faithful composition for Masked Image, Sketch and Color layers.
+The developed model creates a faithful composition of an image with erased areas, sketch and colormap.
 
 
 ## Usage
