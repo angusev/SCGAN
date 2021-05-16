@@ -50,8 +50,8 @@ Arguments:
   --input_nc INPUT_NC                       number of input channels + mask
   --experiment EXPERIMENT                   experiment directory
   --visualization_set VISUALIZATION_SET     validation samples to be visualized
-  --load_G LOAD_G                           path to pretrained generator's weights
-  --load_D LOAD_D                           path to pretrained discriminator's weights
+  --load_G LOAD_G                           path to pretrained generator weights
+  --load_D LOAD_D                           path to pretrained discriminator weights
 ```
 
 The defaults should give reasonable performance in most cases.
