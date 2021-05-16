@@ -2,6 +2,8 @@
 
 ![image info](./data/inference/collages/9.png)
 
+The developed model creates a faithful composition for Masked Image, Sketch and Color layers.
+
 
 ## Usage
 
