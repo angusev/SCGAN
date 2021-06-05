@@ -9,7 +9,7 @@ The developed model creates a faithful composition of an image with erased areas
 
 ```bash
 
-usage: deepfillv2.py [-h] [--dataset DATASET] [--num_workers NUM_WORKERS]
+usage: train.py [-h] [--dataset DATASET] [--num_workers NUM_WORKERS]
                      [--image_size IMAGE_SIZE] [--bbox_shape BBOX_SHAPE]
                      [--bbox_randomness BBOX_RANDOMNESS]
                      [--bbox_margin BBOX_MARGIN] [--bbox_max_num BBOX_MAX_NUM]
