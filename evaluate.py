@@ -63,4 +63,4 @@ if __name__ == "__main__":
 
     print("PSNR:", np.round(psnr, 4))
     print("SSIM:", np.round(ssim, 4))
-    print("L2:", np.round(l2 * 100, 4))
+    print("L2:  ", np.round(l2 * 100, 4))
