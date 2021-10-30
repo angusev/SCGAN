@@ -1,4 +1,4 @@
-# Facial Features Manipulation Using Free-Form Input (PyTroch)
+# Facial Features Manipulation Using Free-Form Input (PyTorch)
 
 ![image info](./data/inference/collages/9.png)
 
